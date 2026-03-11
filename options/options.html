@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDR Copilot — Settings</title>
+  <style>
+    :root {
+      --bg: #0d0e11;
+      --surface: #131417;
+      --surface-2: #18191f;
+      --surface-hover: #1e1f26;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.13);
+      --text: #f0f0f2;
+      --text-2: #8b8d98;
+      --text-3: #4e5060;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --radius: 10px;
+      --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    .layout {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 28px 0 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 32px;
+    }
+
+    .header-logo {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .header-title { font-size: 20px; font-weight: 700; letter-spacing: -0.02em; }
+    .header-sub { font-size: 13px; color: var(--text-3); margin-top: 1px; }
+
+    /* Sections */
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 12px;
+    }
+
+    .setting-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .setting-row:last-child { border-bottom: none; }
+
+    .setting-row.stack {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .setting-info { flex: 1; }
+
+    .setting-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .setting-desc {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.4;
+    }
+
+    /* Inputs */
+    .input-field {
+      width: 100%;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 9px 12px;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .input-field:focus { border-color: var(--accent); }
+
+    .input-field::placeholder { color: var(--text-3); }
+
+    .input-with-btn {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .input-with-btn .input-field { flex: 1; }
+
+    /* Select */
+    select.input-field {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234e5060' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+    }
+
+    /* Toggle */
+    .toggle {
+      position: relative;
+      width: 42px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.1);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: white;
+      transition: transform 0.2s;
+    }
+
+    .toggle input:checked + .toggle-track { background: var(--accent); }
+    .toggle input:checked + .toggle-track::after { transform: translateX(18px); }
+
+    /* Buttons */
+    .btn {
+      padding: 9px 18px;
+      border-radius: 7px;
+      border: none;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-primary { background: var(--accent); color: white; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-ghost {
+      background: var(--surface-2);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { background: var(--surface-hover); color: var(--text); }
+
+    .btn-danger {
+      background: rgba(239,68,68,0.12);
+      color: var(--error);
+      border: 1px solid rgba(239,68,68,0.25);
+    }
+    .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+    .btn-success {
+      background: rgba(16,185,129,0.15);
+      color: var(--success);
+      border: 1px solid rgba(16,185,129,0.3);
+    }
+
+    /* Connection badge */
+    .conn-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .conn-badge.connected { background: rgba(16,185,129,0.12); color: var(--success); border: 1px solid rgba(16,185,129,0.25); }
+    .conn-badge.disconnected { background: rgba(255,255,255,0.05); color: var(--text-3); border: 1px solid var(--border); }
+
+    .conn-dot { width: 6px; height: 6px; border-radius: 50%; }
+    .conn-dot.on { background: var(--success); }
+    .conn-dot.off { background: var(--text-3); }
+
+    /* Save bar */
+    .save-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 100;
+      transform: translateY(100%);
+      transition: transform 0.2s ease;
+    }
+
+    .save-bar.visible { transform: translateY(0); }
+
+    .save-status {
+      font-size: 13px;
+      color: var(--text-2);
+    }
+
+    .save-status.saved { color: var(--success); }
+
+    .save-actions { display: flex; gap: 8px; }
+
+    /* Alert inline */
+    .alert {
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+    .alert.visible { display: block; }
+    .alert-success { background: rgba(16,185,129,0.1); color: var(--success); border: 1px solid rgba(16,185,129,0.2); }
+    .alert-error { background: rgba(239,68,68,0.1); color: var(--error); border: 1px solid rgba(239,68,68,0.2); }
+    .alert-info { background: rgba(99,102,241,0.1); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.2); }
+  </style>
+</head>
+<body>
+
+<div class="layout">
+  <div class="header">
+    <div class="header-logo">⚡</div>
+    <div>
+      <div class="header-title">SDR Copilot Settings</div>
+      <div class="header-sub">Configure your API keys, integrations, and preferences</div>
+    </div>
+  </div>
+
+  <!-- ─── Deepgram ─────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Transcription</div>
+    <div class="setting-group">
+      <div class="setting-row stack">
+        <div class="setting-info">
+          <div class="setting-label">Deepgram API Key</div>
+          <div class="setting-desc">Powers real-time call transcription. Get a free key at <a href="https://console.deepgram.com" target="_blank" style="color:var(--accent);">console.deepgram.com</a></div>
+        </div>
+        <div class="input-with-btn">
+          <input type="password" class="input-field" id="dg-key" placeholder="dg_xxxxxxxxxxxxxxxx" autocomplete="off" />
+          <button class="btn btn-ghost" id="dg-reveal-btn">Show</button>
+        </div>
+        <div class="alert alert-success" id="dg-alert"></div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Demo Mode</div>
+          <div class="setting-desc">Use simulated transcript data (no API key needed). Auto-disables when a key is saved.</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="demo-mode-toggle" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Orum ──────────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Orum Configuration</div>
+    <div class="setting-group">
+      <div class="setting-row stack">
+        <div class="setting-info">
+          <div class="setting-label">Orum Domain</div>
+          <div class="setting-desc">The subdomain where you access Orum. Usually <code style="font-size:11px; color:var(--accent);">app.orum.io</code></div>
+        </div>
+        <input type="text" class="input-field" id="orum-domain" placeholder="app.orum.io" />
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Show Live Overlay</div>
+          <div class="setting-desc">Display the floating coaching panel during active calls</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="overlay-toggle" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">PDM Audit</div>
+          <div class="setting-desc">Automatically highlight contacts missing dispositions, notes, or next steps</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="pdm-audit-toggle" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Google / Gmail ────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Gmail Integration</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Google Account</div>
+          <div class="setting-desc">Enables automatic post-call follow-up email drafts</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="conn-badge disconnected" id="google-badge">
+            <span class="conn-dot off" id="google-dot"></span>
+            <span id="google-badge-text">Not connected</span>
+          </span>
+          <button class="btn btn-ghost" id="google-connect-btn">Connect</button>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Auto-create draft after call</div>
+          <div class="setting-desc">Automatically generate a follow-up draft when a call ends (requires Gmail connected)</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="auto-draft-toggle" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="alert" id="google-alert"></div>
+    </div>
+  </div>
+
+  <!-- ─── Salesforce ────────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Salesforce Integration</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Salesforce Status</div>
+          <div class="setting-desc">Logs call activities and syncs transcripts to Task records</div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="conn-badge disconnected" id="sf-badge">
+            <span class="conn-dot off" id="sf-dot"></span>
+            <span id="sf-badge-text">Not connected</span>
+          </span>
+          <button class="btn btn-ghost" id="sf-connect-btn">Connect</button>
+        </div>
+      </div>
+
+      <div class="setting-row stack">
+        <div class="setting-info">
+          <div class="setting-label">Connected App Client ID</div>
+          <div class="setting-desc">From your Salesforce Connected App configuration. <a href="https://help.salesforce.com/s/articleView?id=sf.connected_app_create.htm" target="_blank" style="color:var(--accent);">Set up guide →</a></div>
+        </div>
+        <input type="text" class="input-field" id="sf-client-id" placeholder="3MVG9…" autocomplete="off" />
+      </div>
+
+      <div class="setting-row stack">
+        <div class="setting-info">
+          <div class="setting-label">Client Secret</div>
+          <div class="setting-desc">Keep this secure — stored in Chrome's encrypted extension storage</div>
+        </div>
+        <div class="input-with-btn">
+          <input type="password" class="input-field" id="sf-client-secret" placeholder="••••••••••••••••" autocomplete="off" />
+          <button class="btn btn-ghost" id="sf-secret-reveal">Show</button>
+        </div>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Environment</div>
+          <div class="setting-desc">Production or Sandbox (test.salesforce.com)</div>
+        </div>
+        <select class="input-field" id="sf-environment" style="width:160px;">
+          <option value="production">Production</option>
+          <option value="sandbox">Sandbox</option>
+        </select>
+      </div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Auto-sync after call</div>
+          <div class="setting-desc">Automatically create a Task record when a call ends</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="auto-sf-toggle" />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <div class="alert" id="sf-alert"></div>
+    </div>
+  </div>
+
+  <!-- ─── Dashboard Preferences ────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Dashboard Preferences</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Show Objection Chart</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="pref-obj-chart" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Show Talk-Time Breakdown</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="pref-talktime" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Show Follow-up Actions</div>
+        </div>
+        <label class="toggle">
+          <input type="checkbox" id="pref-followups" checked />
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Danger Zone ───────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Data</div>
+    <div class="setting-group">
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Clear Call History</div>
+          <div class="setting-desc">Permanently delete all stored call records and transcripts</div>
+        </div>
+        <button class="btn btn-danger" id="clear-history-btn">Clear History</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /.layout -->
+
+<!-- Save bar -->
+<div class="save-bar" id="save-bar">
+  <span class="save-status" id="save-status">Unsaved changes</span>
+  <div class="save-actions">
+    <button class="btn btn-ghost" id="discard-btn">Discard</button>
+    <button class="btn btn-primary" id="save-btn">Save Settings</button>
+  </div>
+</div>
+
+<script src="options.js"></script>
+</body>
+</html>

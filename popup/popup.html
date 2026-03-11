@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDR Copilot</title>
+  <style>
+    :root {
+      --bg: #0d0e11;
+      --surface: #16171c;
+      --surface-hover: #1e1f26;
+      --border: rgba(255,255,255,0.08);
+      --border-strong: rgba(255,255,255,0.12);
+      --text: #f0f0f2;
+      --text-2: #8b8d98;
+      --text-3: #4e5060;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --error: #ef4444;
+      --radius: 9px;
+      --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 300px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 13px;
+      user-select: none;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-dot {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .logo-name {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .badge-demo {
+      font-size: 10px;
+      font-weight: 600;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--warning);
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 4px;
+      padding: 2px 6px;
+      letter-spacing: 0.06em;
+    }
+
+    /* Status indicators */
+    .status-grid {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 10px;
+      border-radius: 7px;
+      background: var(--surface);
+    }
+
+    .status-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-2);
+      font-size: 12px;
+    }
+
+    .status-indicator {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-3);
+      flex-shrink: 0;
+    }
+    .status-indicator.connected { background: var(--success); }
+    .status-indicator.active { background: var(--error); animation: pulse 1.4s ease infinite; }
+    .status-indicator.warning { background: var(--warning); }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .status-value {
+      font-size: 11px;
+      color: var(--text-3);
+    }
+    .status-value.ok { color: var(--success); }
+    .status-value.warn { color: var(--warning); }
+
+    /* Toggle row */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .toggle-desc {
+      font-size: 11px;
+      color: var(--text-2);
+      margin-top: 2px;
+    }
+
+    /* Toggle switch */
+    .toggle {
+      position: relative;
+      width: 38px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+
+    .toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      border-radius: 11px;
+      background: rgba(255,255,255,0.12);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .toggle-track::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: white;
+      transition: transform 0.2s;
+    }
+
+    .toggle input:checked + .toggle-track {
+      background: var(--accent);
+    }
+
+    .toggle input:checked + .toggle-track::after {
+      transform: translateX(16px);
+    }
+
+    /* Action buttons */
+    .actions {
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      width: 100%;
+      padding: 9px 14px;
+      border-radius: 7px;
+      border: none;
+      font-family: var(--font);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+    }
+
+    .btn-ghost {
+      background: var(--surface);
+      color: var(--text-2);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover {
+      background: var(--surface-hover);
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+    .btn-row .btn { flex: 1; }
+
+    /* Footer */
+    .footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-link {
+      font-size: 11px;
+      color: var(--text-3);
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.15s;
+    }
+
+    .footer-link:hover { color: var(--text-2); }
+
+    .version {
+      font-size: 10px;
+      color: var(--text-3);
+    }
+
+    /* API key mini-form */
+    .apikey-form {
+      padding: 0 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .input-field {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-family: var(--font);
+      font-size: 12px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .input-field:focus {
+      border-color: var(--accent);
+    }
+
+    .input-label {
+      font-size: 11px;
+      color: var(--text-2);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .save-msg {
+      font-size: 11px;
+      color: var(--success);
+      margin-top: 5px;
+      display: none;
+    }
+    .save-msg.visible { display: block; }
+
+    .btn-sm {
+      padding: 7px 10px;
+      font-size: 12px;
+      border-radius: 7px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-dot">⚡</div>
+      <span class="logo-name">SDR Copilot</span>
+    </div>
+    <span class="badge-demo" id="demo-badge">DEMO</span>
+  </div>
+
+  <!-- Connection Status -->
+  <div class="status-grid">
+    <div class="status-row">
+      <span class="status-label">
+        <span class="status-indicator" id="si-orum"></span>
+        Orum
+      </span>
+      <span class="status-value" id="sv-orum">Not detected</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">
+        <span class="status-indicator" id="si-deepgram"></span>
+        Deepgram
+      </span>
+      <span class="status-value" id="sv-deepgram">No API key</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">
+        <span class="status-indicator" id="si-google"></span>
+        Gmail
+      </span>
+      <span class="status-value" id="sv-google">Not connected</span>
+    </div>
+    <div class="status-row">
+      <span class="status-label">
+        <span class="status-indicator" id="si-salesforce"></span>
+        Salesforce
+      </span>
+      <span class="status-value" id="sv-salesforce">Not connected</span>
+    </div>
+  </div>
+
+  <!-- Overlay Toggle -->
+  <div class="toggle-row">
+    <div>
+      <div class="toggle-label">Live Overlay</div>
+      <div class="toggle-desc">Show in-call coaching panel</div>
+    </div>
+    <label class="toggle">
+      <input type="checkbox" id="overlay-toggle" checked />
+      <span class="toggle-track"></span>
+    </label>
+  </div>
+
+  <!-- Quick API key entry -->
+  <div class="apikey-form">
+    <div class="input-label">Deepgram API Key</div>
+    <div class="input-group">
+      <input
+        type="password"
+        class="input-field"
+        id="dg-key-input"
+        placeholder="dg_xxxxxxxxxxxxxxxx"
+        autocomplete="off"
+      />
+      <button class="btn btn-ghost btn-sm" id="dg-save-btn">Save</button>
+    </div>
+    <div class="save-msg" id="dg-save-msg">✓ Saved!</div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn btn-primary" id="open-dashboard-btn">
+      📊 Open Dashboard
+    </button>
+    <div class="btn-row">
+      <button class="btn btn-ghost" id="connect-google-btn">✉ Connect Gmail</button>
+      <button class="btn btn-ghost" id="connect-sf-btn">☁ Salesforce</button>
+    </div>
+    <button class="btn btn-ghost" id="open-options-btn">⚙ Settings</button>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span class="footer-link" id="open-options-link">Options</span>
+    <span class="version">v1.0.0</span>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

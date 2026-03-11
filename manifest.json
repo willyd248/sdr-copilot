@@ -1,0 +1,87 @@
+{
+  "manifest_version": 3,
+  "name": "SDR Copilot",
+  "version": "1.0.0",
+  "description": "AI-powered assistant for Sales Development Representatives — live call transcription, objection coaching, and automated follow-ups.",
+  "author": "SDR Copilot",
+
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "32": "assets/icons/icon32.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    },
+    "default_title": "SDR Copilot"
+  },
+
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["*://*.orum.io/*"],
+      "js": [
+        "utils/ai-coach.js",
+        "utils/pdm-audit.js",
+        "content/deepgram-client.js",
+        "content/orum-overlay.js"
+      ],
+      "css": ["assets/styles/overlay.css"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+
+  "permissions": [
+    "tabs",
+    "storage",
+    "scripting",
+    "alarms",
+    "identity",
+    "tabCapture",
+    "offscreen",
+    "notifications"
+  ],
+
+  "host_permissions": [
+    "*://*.orum.io/*",
+    "*://api.deepgram.com/*",
+    "*://*.salesforce.com/*",
+    "*://login.salesforce.com/*",
+    "*://test.salesforce.com/*",
+    "*://www.googleapis.com/*",
+    "*://accounts.google.com/*",
+    "*://api.anthropic.com/*"
+  ],
+
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "dashboard/dashboard.html",
+        "assets/styles/overlay.css",
+        "assets/icons/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ],
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
+}
