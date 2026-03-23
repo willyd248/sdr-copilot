@@ -123,6 +123,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleSalesforceUpsertActivity(payload, sendResponse);
       return true;
 
+    case 'LINKEDIN_CONTACT_CAPTURED':
+      handleLinkedInContact(payload, sendResponse);
+      return true;
+
+    case 'GET_LINKEDIN_CONTACTS':
+      handleGetLinkedInContacts(sendResponse);
+      return true;
+
     case 'OPEN_DASHBOARD':
       chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') });
       sendResponse({ ok: true });
@@ -571,5 +579,54 @@ async function handleNightlyRefresh() {
     });
   } catch (err) {
     console.error('[SDR Copilot] Nightly refresh error:', err);
+  }
+}
+
+// ─── LinkedIn Contact Handlers ────────────────────────────────────────────────
+
+const STORAGE_LINKEDIN_CONTACTS = 'linkedinContacts';
+
+/**
+ * Save a LinkedIn profile captured by the content script.
+ * De-duplicates by linkedinUrl.
+ */
+async function handleLinkedInContact(profile, sendResponse) {
+  try {
+    const data = await chrome.storage.local.get(STORAGE_LINKEDIN_CONTACTS);
+    const contacts = data[STORAGE_LINKEDIN_CONTACTS] || [];
+
+    // De-duplicate by LinkedIn URL
+    const normalUrl = (profile.linkedinUrl || '').split('?')[0].replace(/\/$/, '');
+    const existingIdx = contacts.findIndex(
+      c => (c.linkedinUrl || '').split('?')[0].replace(/\/$/, '') === normalUrl
+    );
+
+    if (existingIdx >= 0) {
+      // Merge: keep existing email if we don't have a new one
+      contacts[existingIdx] = {
+        ...contacts[existingIdx],
+        ...profile,
+        email: profile.email || contacts[existingIdx].email,
+        updatedAt: new Date().toISOString(),
+      };
+    } else {
+      contacts.unshift({ ...profile, id: `li-${Date.now()}` });
+    }
+
+    // Cap at 500 contacts
+    await chrome.storage.local.set({ [STORAGE_LINKEDIN_CONTACTS]: contacts.slice(0, 500) });
+    sendResponse({ saved: true, total: contacts.length });
+  } catch (err) {
+    console.error('[SDR Copilot] LinkedIn contact save error:', err);
+    sendResponse({ saved: false, error: err.message });
+  }
+}
+
+async function handleGetLinkedInContacts(sendResponse) {
+  try {
+    const data = await chrome.storage.local.get(STORAGE_LINKEDIN_CONTACTS);
+    sendResponse({ ok: true, contacts: data[STORAGE_LINKEDIN_CONTACTS] || [] });
+  } catch (err) {
+    sendResponse({ ok: false, error: err.message });
   }
 }
