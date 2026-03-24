@@ -43,6 +43,8 @@
       "js": [
         "utils/ai-coach.js",
         "utils/pdm-audit.js",
+        "utils/gmail-draft.js",
+        "utils/salesforce.js",
         "content/deepgram-client.js",
         "content/orum-overlay.js"
       ],
