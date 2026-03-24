@@ -118,7 +118,12 @@
 
   function getTodayCalls() {
     const dateStr = selectedDate.toISOString().split('T')[0];
-    return allCalls.filter(c => (c.startTime || '').startsWith(dateStr) || isDemoMode);
+    if (isDemoMode) {
+      // In demo mode, only show demo calls when viewing "today"
+      const todayStr = new Date().toISOString().split('T')[0];
+      return dateStr === todayStr ? allCalls : [];
+    }
+    return allCalls.filter(c => (c.startTime || '').startsWith(dateStr));
   }
 
   function calcStats(calls) {
@@ -482,6 +487,14 @@
       ? followUps.map(f => `  • ${f}`).join('\n')
       : '  • Sending over the relevant info we discussed';
 
+    const profile = settings.senderProfile || {};
+    const senderName = profile.name || '[Your Name]';
+    const senderTitle = profile.title || '[Your Title]';
+    const senderCompany = profile.company || '[Company]';
+    const senderPhone = profile.phone || '[Phone]';
+    const senderEmail = profile.email || '[Email]';
+    const signature = `${senderName}\n${senderTitle} | ${senderCompany}\n${senderPhone} | ${senderEmail}`;
+
     return `Hi ${firstName},
 
 Thanks for the time today${durationMin > 0 ? ` — ${durationMin} minutes flew by` : ''}! Really enjoyed learning about ${call.companyName || 'your team'}.
@@ -493,7 +506,7 @@ ${actionLines}
 Anything you need on your end to move things forward?
 
 Best,
-[Your Name]`;
+${signature}`;
   }
 
   // ─── Events ─────────────────────────────────────────────────────────────────
