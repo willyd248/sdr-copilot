@@ -131,6 +131,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleGetLinkedInContacts(sendResponse);
       return true;
 
+    case 'OFFSCREEN_AUDIO_CHUNK':
+      // Relay PCM audio chunk from offscreen document to the active Orum tab
+      relayAudioChunkToOrumTab(payload || message.buffer);
+      return false;
+
     case 'OPEN_DASHBOARD':
       chrome.tabs.create({ url: chrome.runtime.getURL('dashboard/dashboard.html') });
       sendResponse({ ok: true });
@@ -662,4 +667,17 @@ async function handleGetLinkedInContacts(sendResponse) {
   } catch (err) {
     sendResponse({ ok: false, error: err.message });
   }
+}
+
+// ─── Audio Chunk Relay ──────────────────────────────────────────────────────
+
+function relayAudioChunkToOrumTab(buffer) {
+  chrome.tabs.query({ url: '*://*.orum.io/*' }, (tabs) => {
+    if (tabs && tabs.length > 0) {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        type: 'OFFSCREEN_AUDIO_CHUNK',
+        buffer
+      }).catch(() => {});
+    }
+  });
 }

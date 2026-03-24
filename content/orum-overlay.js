@@ -840,10 +840,20 @@
   function onExtensionMessage(message) {
     const { type, payload } = message;
     if (type === 'TOGGLE_OVERLAY') {
-      state.overlayVisible ? hideOverlay() : showOverlay();
+      if (payload && typeof payload.enabled === 'boolean') {
+        payload.enabled ? showOverlay() : hideOverlay();
+      } else {
+        state.overlayVisible ? hideOverlay() : showOverlay();
+      }
     } else if (type === 'SETTINGS_UPDATED') {
       state.settings = { ...state.settings, ...payload };
       state.demoMode = !state.settings.deepgramApiKey;
+    } else if (type === 'OFFSCREEN_AUDIO_CHUNK') {
+      // Relay audio chunk from offscreen document to Deepgram WebSocket
+      if (state.deepgramClient?._ws?.readyState === WebSocket.OPEN && message.buffer) {
+        const pcm16 = new Int16Array(message.buffer);
+        state.deepgramClient._ws.send(pcm16.buffer);
+      }
     }
   }
 
