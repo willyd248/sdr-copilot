@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SDR Copilot — Demo</title>
+  <link rel="stylesheet" href="../assets/styles/overlay.css" />
+  <style>
+    :root {
+      --bg: #0F1117;
+      --surface: #111319;
+      --surface-container: #1E1F26;
+      --text: #E2E2EB;
+      --text-2: #C2C6D6;
+      --text-3: #8C909F;
+      --accent: #ADC6FF;
+      --accent-container: #4D8EFF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .demo-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .demo-header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .demo-header p {
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
+    .demo-stage {
+      width: 100%;
+      max-width: 800px;
+      background: var(--surface-container);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 24px;
+      min-height: 200px;
+      position: relative;
+    }
+
+    .demo-stage-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .demo-call-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .demo-call-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      animation: pulse-dot 1.4s ease infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .demo-call-label {
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .demo-call-prospect {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .demo-controls {
+      display: flex;
+      gap: 8px;
+      margin-top: 24px;
+    }
+
+    .demo-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .demo-btn-start {
+      background: var(--accent-container);
+      color: white;
+    }
+
+    .demo-btn-reset {
+      background: rgba(255,255,255,0.06);
+      color: var(--text-3);
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    #demo-status {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="demo-header">
+    <h1>SDR Copilot Demo</h1>
+    <p>Experience the full call overlay without needing an Orum tab</p>
+  </div>
+
+  <div class="demo-stage">
+    <div class="demo-stage-header">
+      <div class="demo-call-info">
+        <div class="demo-call-dot" id="demo-dot" style="display:none;"></div>
+        <span class="demo-call-label">Simulated Call</span>
+        <span class="demo-call-prospect">— Sarah Chen, Acme Corp</span>
+      </div>
+    </div>
+
+    <div id="demo-overlay-container">
+      <!-- The overlay will be injected here -->
+    </div>
+
+    <div class="demo-controls">
+      <button class="demo-btn demo-btn-start" id="start-demo-btn">Start Demo Call</button>
+      <button class="demo-btn demo-btn-reset" id="reset-demo-btn" style="display:none;">Reset</button>
+    </div>
+    <div id="demo-status"></div>
+  </div>
+
+  <script src="../utils/ai-coach.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>

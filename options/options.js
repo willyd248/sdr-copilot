@@ -8,6 +8,12 @@
   // ─── Elements ─────────────────────────────────────────────────────────────────
 
   const el = {
+    profileName:    document.getElementById('profile-name'),
+    profileTitle:   document.getElementById('profile-title'),
+    profileCompany: document.getElementById('profile-company'),
+    profilePhone:   document.getElementById('profile-phone'),
+    profileEmail:   document.getElementById('profile-email'),
+
     dgKey:          document.getElementById('dg-key'),
     dgRevealBtn:    document.getElementById('dg-reveal-btn'),
     dgAlert:        document.getElementById('dg-alert'),
@@ -74,6 +80,14 @@
   // ─── Populate form from settings ──────────────────────────────────────────────
 
   function populateForm() {
+    // Profile
+    const profile = settings.senderProfile || {};
+    el.profileName.value = profile.name || '';
+    el.profileTitle.value = profile.title || '';
+    el.profileCompany.value = profile.company || '';
+    el.profilePhone.value = profile.phone || '';
+    el.profileEmail.value = profile.email || '';
+
     // Deepgram
     if (settings.deepgramApiKey) {
       el.dgKey.placeholder = '••••••••••••••••  (saved)';
@@ -139,6 +153,7 @@
   function bindEvents() {
     // Track changes
     const changeEls = [
+      el.profileName, el.profileTitle, el.profileCompany, el.profilePhone, el.profileEmail,
       el.dgKey, el.demoModeToggle, el.orumDomain, el.overlayToggle,
       el.pdmAuditToggle, el.autoDraftToggle, el.sfClientId,
       el.sfClientSecret, el.sfEnvironment, el.autoSFToggle,
@@ -212,6 +227,13 @@
     el.saveBtn.textContent = 'Saving…';
 
     const newSettings = {
+      senderProfile: {
+        name: el.profileName.value.trim(),
+        title: el.profileTitle.value.trim(),
+        company: el.profileCompany.value.trim(),
+        phone: el.profilePhone.value.trim(),
+        email: el.profileEmail.value.trim()
+      },
       deepgramApiKey: el.dgKey.value.trim() || settings.deepgramApiKey || '',
       demoMode: el.demoModeToggle.checked,
       orumDomain: el.orumDomain.value.trim() || 'app.orum.io',

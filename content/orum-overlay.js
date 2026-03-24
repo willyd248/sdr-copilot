@@ -254,9 +254,9 @@
       const client = new DeepgramClient();
       state.deepgramClient = client;
 
-      client.onTranscript = ({ transcript, isFinal, speechStarted, utteranceEnd }) => {
+      client.onTranscript = ({ transcript, isFinal, speechStarted, utteranceEnd, speaker }) => {
         if (speechStarted) {
-          trackSpeechStart('prospect');
+          trackSpeechStart(speaker || 'prospect');
           return;
         }
         if (utteranceEnd) {
@@ -264,7 +264,10 @@
           return;
         }
         if (transcript) {
-          handleTranscriptChunk(transcript, isFinal, 'prospect');
+          const spk = speaker || 'prospect';
+          trackSpeechStart(spk);
+          handleTranscriptChunk(transcript, isFinal, spk);
+          if (isFinal) trackSpeechEnd();
         }
       };
 
@@ -287,6 +290,10 @@
   }
 
   function stopTranscription() {
+    // Clear demo timers
+    _demoTimers.forEach(t => clearTimeout(t));
+    _demoTimers = [];
+
     if (state.deepgramClient) {
       state.deepgramClient.stop();
       state.deepgramClient = null;
@@ -331,11 +338,6 @@
       }, delay);
       _demoTimers.push(t);
     });
-  }
-
-  function stopDemoMode() {
-    _demoTimers.forEach(t => clearTimeout(t));
-    _demoTimers = [];
   }
 
   // ─── Transcript Handling ──────────────────────────────────────────────────────

@@ -6,22 +6,22 @@
   <title>SDR Copilot — Settings</title>
   <style>
     :root {
-      --bg: #0d0e11;
-      --surface: #131417;
-      --surface-2: #18191f;
-      --surface-hover: #1e1f26;
-      --border: rgba(255,255,255,0.08);
-      --border-strong: rgba(255,255,255,0.13);
-      --text: #f0f0f2;
-      --text-2: #8b8d98;
-      --text-3: #4e5060;
-      --accent: #6366f1;
-      --accent-hover: #818cf8;
+      --bg: #0F1117;
+      --surface: #1e1f26;
+      --surface-2: #0c0e14;
+      --surface-hover: #282a30;
+      --border: rgba(66,71,84,0.15);
+      --border-strong: rgba(66,71,84,0.3);
+      --text: #e2e2eb;
+      --text-2: #c2c6d6;
+      --text-3: #8c909f;
+      --accent: #4d8eff;
+      --accent-hover: #adc6ff;
       --success: #10b981;
       --warning: #f59e0b;
       --error: #ef4444;
-      --radius: 10px;
-      --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      --radius: 8px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,7 +55,7 @@
       width: 36px;
       height: 36px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, #4d8eff, #adc6ff);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -130,7 +130,7 @@
       transition: border-color 0.15s;
     }
 
-    .input-field:focus { border-color: var(--accent); }
+    .input-field:focus { border-color: rgba(173,198,255,0.5); box-shadow: 0 0 12px rgba(77,142,255,0.15); }
 
     .input-field::placeholder { color: var(--text-3); }
 
@@ -287,6 +287,40 @@
     <div>
       <div class="header-title">SDR Copilot Settings</div>
       <div class="header-sub">Configure your API keys, integrations, and preferences</div>
+    </div>
+  </div>
+
+  <!-- ─── Your Profile ─────────────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Your Profile</div>
+    <div class="setting-group">
+      <div class="setting-row stack">
+        <div class="setting-info">
+          <div class="setting-label">Full Name</div>
+          <div class="setting-desc">Used in email signatures and follow-up drafts</div>
+        </div>
+        <input type="text" class="input-field" id="profile-name" placeholder="e.g. Will DiMaio" />
+      </div>
+      <div class="setting-row" style="display:flex;gap:14px;">
+        <div style="flex:1;">
+          <div class="setting-label" style="margin-bottom:6px;">Title</div>
+          <input type="text" class="input-field" id="profile-title" placeholder="e.g. SDR" />
+        </div>
+        <div style="flex:1;">
+          <div class="setting-label" style="margin-bottom:6px;">Company</div>
+          <input type="text" class="input-field" id="profile-company" placeholder="e.g. Acme Corp" />
+        </div>
+      </div>
+      <div class="setting-row" style="display:flex;gap:14px;">
+        <div style="flex:1;">
+          <div class="setting-label" style="margin-bottom:6px;">Phone</div>
+          <input type="tel" class="input-field" id="profile-phone" placeholder="e.g. (555) 123-4567" />
+        </div>
+        <div style="flex:1;">
+          <div class="setting-label" style="margin-bottom:6px;">Email</div>
+          <input type="email" class="input-field" id="profile-email" placeholder="e.g. will@acme.com" />
+        </div>
+      </div>
     </div>
   </div>
 

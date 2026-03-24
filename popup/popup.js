@@ -19,6 +19,7 @@
     dgKeyInput:      document.getElementById('dg-key-input'),
     dgSaveBtn:       document.getElementById('dg-save-btn'),
     dgSaveMsg:       document.getElementById('dg-save-msg'),
+    launchDemo:      document.getElementById('launch-demo-btn'),
     openDashboard:   document.getElementById('open-dashboard-btn'),
     connectGoogle:   document.getElementById('connect-google-btn'),
     connectSF:       document.getElementById('connect-sf-btn'),
@@ -143,6 +144,12 @@
     el.dgSaveBtn.addEventListener('click', saveDeepgramKey);
     el.dgKeyInput.addEventListener('keydown', e => {
       if (e.key === 'Enter') saveDeepgramKey();
+    });
+
+    // Launch demo
+    el.launchDemo.addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('demo/demo.html') });
+      window.close();
     });
 
     // Open dashboard

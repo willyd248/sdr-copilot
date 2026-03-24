@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "SDR Copilot",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "AI-powered assistant for Sales Development Representatives — live call transcription, objection coaching, and automated follow-ups.",
   "author": "SDR Copilot",
 
@@ -21,6 +21,15 @@
       "128": "assets/icons/icon128.png"
     },
     "default_title": "SDR Copilot"
+  },
+
+  "oauth2": {
+    "client_id": "YOUR_GOOGLE_OAUTH_CLIENT_ID.apps.googleusercontent.com",
+    "scopes": [
+      "https://www.googleapis.com/auth/gmail.compose",
+      "https://www.googleapis.com/auth/gmail.send",
+      "https://www.googleapis.com/auth/userinfo.email"
+    ]
   },
 
   "background": {
@@ -82,6 +91,9 @@
     {
       "resources": [
         "dashboard/dashboard.html",
+        "demo/demo.html",
+        "offscreen/offscreen.html",
+        "audio/audio-processor.js",
         "assets/styles/overlay.css",
         "assets/icons/*"
       ],

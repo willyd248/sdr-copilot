@@ -523,13 +523,34 @@ async function upsertSalesforceActivity(tokens, payload) {
   return await res.json();
 }
 
-// ─── Tab Audio Capture ────────────────────────────────────────────────────────
+// ─── Tab Audio Capture (via Offscreen Document) ──────────────────────────────
+
+let _offscreenCreated = false;
+
+async function ensureOffscreenDocument() {
+  if (_offscreenCreated) return;
+
+  // Check if offscreen document already exists
+  const existingContexts = await chrome.runtime.getContexts({
+    contextTypes: ['OFFSCREEN_DOCUMENT']
+  });
+  if (existingContexts.length > 0) {
+    _offscreenCreated = true;
+    return;
+  }
+
+  await chrome.offscreen.createDocument({
+    url: 'offscreen/offscreen.html',
+    reasons: ['USER_MEDIA'],
+    justification: 'Capture tab audio for real-time transcription'
+  });
+  _offscreenCreated = true;
+}
 
 async function handleCaptureTabAudio(tab, sendResponse) {
   try {
     if (!tab || !tab.id) throw new Error('No tab to capture');
 
-    // tabCapture requires the tab to be active in the current window
     const streamId = await new Promise((resolve, reject) => {
       chrome.tabCapture.getMediaStreamId({ targetTabId: tab.id }, (id) => {
         if (chrome.runtime.lastError) reject(new Error(chrome.runtime.lastError.message));
@@ -537,7 +558,19 @@ async function handleCaptureTabAudio(tab, sendResponse) {
       });
     });
 
-    sendResponse({ ok: true, streamId });
+    // Create offscreen document and start capture there
+    await ensureOffscreenDocument();
+    const result = await chrome.runtime.sendMessage({
+      type: 'OFFSCREEN_START_CAPTURE',
+      streamId
+    });
+
+    if (result?.ok) {
+      sendResponse({ ok: true, streamId, offscreen: true });
+    } else {
+      // Fall back to returning streamId for content script to handle
+      sendResponse({ ok: true, streamId });
+    }
   } catch (err) {
     sendResponse({ ok: false, error: err.message });
   }

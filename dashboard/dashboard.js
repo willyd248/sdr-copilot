@@ -72,6 +72,7 @@
   let allCalls = [];
   let isDemoMode = false;
   let followupDoneSet = new Set();
+  let selectedDate = new Date(); // currently selected date
 
   async function init() {
     setNavDate();
@@ -116,8 +117,8 @@
   // ─── Aggregations ───────────────────────────────────────────────────────────
 
   function getTodayCalls() {
-    const today = new Date().toISOString().split('T')[0];
-    return allCalls.filter(c => (c.startTime || '').startsWith(today) || isDemoMode);
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    return allCalls.filter(c => (c.startTime || '').startsWith(dateStr) || isDemoMode);
   }
 
   function calcStats(calls) {
@@ -459,7 +460,6 @@
   async function triggerDraft(call) {
     if (!call.prospectEmail) return;
 
-    const fullTranscript = '';
     const payload = {
       to: call.prospectEmail,
       subject: `Following up — great talking with you, ${call.prospectName?.split(' ')[0] || 'there'}`,
@@ -508,6 +508,57 @@ Best,
     });
 
     document.getElementById('export-btn').addEventListener('click', exportCSV);
+
+    // Date navigation
+    document.getElementById('date-prev').addEventListener('click', () => {
+      selectedDate.setDate(selectedDate.getDate() - 1);
+      refreshDashboard();
+    });
+
+    document.getElementById('date-next').addEventListener('click', () => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      if (selectedDate < tomorrow) {
+        selectedDate.setDate(selectedDate.getDate() + 1);
+        refreshDashboard();
+      }
+    });
+  }
+
+  function refreshDashboard() {
+    updateDateLabel();
+    renderStatCards();
+    renderObjectionChart();
+    renderTalkTime();
+    renderFollowUps();
+    renderCallHistory();
+  }
+
+  function updateDateLabel() {
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const selStr = selectedDate.toISOString().split('T')[0];
+    const todayStr = today.toISOString().split('T')[0];
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    let label;
+    if (selStr === todayStr) label = 'Today';
+    else if (selStr === yesterdayStr) label = 'Yesterday';
+    else label = selectedDate.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+    document.getElementById('date-label').textContent = label;
+
+    // Disable next button if at today
+    const nextBtn = document.getElementById('date-next');
+    if (nextBtn) nextBtn.disabled = selStr >= todayStr;
+
+    // Disable prev if 7 days back
+    const minDate = new Date();
+    minDate.setDate(minDate.getDate() - 7);
+    const prevBtn = document.getElementById('date-prev');
+    if (prevBtn) prevBtn.disabled = selStr <= minDate.toISOString().split('T')[0];
   }
 
   function exportCSV() {
@@ -538,7 +589,7 @@ Best,
     const now = new Date();
     const opts = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     document.getElementById('nav-date').textContent = now.toLocaleDateString(undefined, opts);
-    document.getElementById('date-label').textContent = 'Today';
+    updateDateLabel();
   }
 
   function formatDuration(secs) {

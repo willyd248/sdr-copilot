@@ -22,6 +22,7 @@
       this._audioStream = null;
       this._audioContext = null;
       this._processorNode = null;
+      this._workletNode = null;
       this._sourceNode = null;
       this._keepaliveTimer = null;
       this._reconnectTimer = null;
@@ -29,6 +30,9 @@
       this._maxReconnectAttempts = 5;
       this._stopping = false;
       this._silenceSent = false;
+      this._useWorklet = false;
+      this._firstSpeakerIdentified = false;
+      this._sdrSpeakerId = null; // speaker ID identified as SDR
 
       // Callbacks
       this.onTranscript = null;
@@ -70,7 +74,8 @@
         interim_results: 'true',
         endpointing: '300',
         utterance_end_ms: '1000',
-        vad_events: 'true'
+        vad_events: 'true',
+        diarize: 'true'
       });
       // Pass API key as query param — the only reliable method in browser context
       return `wss://api.deepgram.com/v1/listen?${params.toString()}`;
@@ -137,7 +142,7 @@
 
     // ── Audio Pipeline ────────────────────────────────────────────────────────
 
-    _setupAudioPipeline() {
+    async _setupAudioPipeline() {
       try {
         if (!this._audioStream) {
           console.warn('[DeepgramClient] No audio stream available');
@@ -147,19 +152,38 @@
         this._audioContext = new AudioContext({ sampleRate: 16000 });
         this._sourceNode = this._audioContext.createMediaStreamSource(this._audioStream);
 
-        // ScriptProcessorNode gives us raw PCM buffers
-        // bufferSize 4096 → ~256ms at 16kHz (low latency while still chunky enough)
-        this._processorNode = this._audioContext.createScriptProcessor(4096, 1, 1);
+        // Try AudioWorklet first (runs off main thread, better performance)
+        if (this._audioContext.audioWorklet) {
+          try {
+            const workletUrl = chrome.runtime.getURL('audio/audio-processor.js');
+            await this._audioContext.audioWorklet.addModule(workletUrl);
+            this._workletNode = new AudioWorkletNode(this._audioContext, 'pcm-processor');
+            this._workletNode.port.onmessage = (ev) => {
+              if (this._ws && this._ws.readyState === WebSocket.OPEN) {
+                this._ws.send(ev.data);
+              }
+            };
+            this._sourceNode.connect(this._workletNode);
+            this._workletNode.connect(this._audioContext.destination);
+            this._useWorklet = true;
+            console.info('[DeepgramClient] Using AudioWorklet pipeline');
+            return;
+          } catch (workletErr) {
+            console.warn('[DeepgramClient] AudioWorklet unavailable, falling back to ScriptProcessor:', workletErr.message);
+          }
+        }
 
+        // Fallback: ScriptProcessorNode (deprecated but widely supported)
+        this._processorNode = this._audioContext.createScriptProcessor(4096, 1, 1);
         this._processorNode.onaudioprocess = (ev) => {
           if (!this._ws || this._ws.readyState !== WebSocket.OPEN) return;
           const float32 = ev.inputBuffer.getChannelData(0);
           const pcm16 = this._float32ToInt16(float32);
           this._ws.send(pcm16.buffer);
         };
-
         this._sourceNode.connect(this._processorNode);
         this._processorNode.connect(this._audioContext.destination);
+        console.info('[DeepgramClient] Using ScriptProcessorNode fallback');
       } catch (err) {
         this._emitError(`Audio pipeline error: ${err.message}`);
       }
@@ -188,8 +212,21 @@
           const isFinal = data.is_final === true;
           const confidence = alt.confidence || 0;
 
+          // Extract speaker from diarization
+          let speaker = null;
+          const words = alt.words || [];
+          if (words.length > 0 && words[0].speaker !== undefined) {
+            const speakerId = words[0].speaker;
+            // First-speaker heuristic: first person to speak is the SDR
+            if (!this._firstSpeakerIdentified) {
+              this._sdrSpeakerId = speakerId;
+              this._firstSpeakerIdentified = true;
+            }
+            speaker = speakerId === this._sdrSpeakerId ? 'you' : 'prospect';
+          }
+
           if (transcript.trim() && typeof this.onTranscript === 'function') {
-            this.onTranscript({ transcript, isFinal, confidence });
+            this.onTranscript({ transcript, isFinal, confidence, speaker });
           }
         } else if (data.type === 'UtteranceEnd') {
           if (typeof this.onTranscript === 'function') {
@@ -252,6 +289,11 @@
 
     _teardownAudioPipeline() {
       try {
+        if (this._workletNode) {
+          this._workletNode.disconnect();
+          this._workletNode.port.onmessage = null;
+          this._workletNode = null;
+        }
         if (this._processorNode) {
           this._processorNode.disconnect();
           this._processorNode.onaudioprocess = null;

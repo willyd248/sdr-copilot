@@ -6,21 +6,21 @@
   <title>SDR Copilot</title>
   <style>
     :root {
-      --bg: #0d0e11;
-      --surface: #16171c;
-      --surface-hover: #1e1f26;
-      --border: rgba(255,255,255,0.08);
-      --border-strong: rgba(255,255,255,0.12);
-      --text: #f0f0f2;
-      --text-2: #8b8d98;
-      --text-3: #4e5060;
-      --accent: #6366f1;
-      --accent-hover: #818cf8;
+      --bg: #111319;
+      --surface: #1e1f26;
+      --surface-hover: #282a30;
+      --border: rgba(66,71,84,0.15);
+      --border-strong: rgba(66,71,84,0.3);
+      --text: #e2e2eb;
+      --text-2: #c2c6d6;
+      --text-3: #8c909f;
+      --accent: #4d8eff;
+      --accent-hover: #adc6ff;
       --success: #10b981;
       --warning: #f59e0b;
       --error: #ef4444;
-      --radius: 9px;
-      --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      --radius: 6px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,7 +53,7 @@
       width: 20px;
       height: 20px;
       border-radius: 6px;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      background: linear-gradient(135deg, #4d8eff, #adc6ff);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -216,10 +216,15 @@
     .btn-primary {
       background: var(--accent);
       color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-size: 12px;
     }
     .btn-primary:hover {
       background: var(--accent-hover);
-      box-shadow: 0 0 0 3px rgba(99,102,241,0.25);
+      color: #002e6a;
+      box-shadow: 0 0 0 3px rgba(77,142,255,0.25);
     }
 
     .btn-ghost {
@@ -387,7 +392,10 @@
 
   <!-- Actions -->
   <div class="actions">
-    <button class="btn btn-primary" id="open-dashboard-btn">
+    <button class="btn btn-primary" id="launch-demo-btn">
+      🚀 Launch Demo
+    </button>
+    <button class="btn btn-ghost" id="open-dashboard-btn">
       📊 Open Dashboard
     </button>
     <div class="btn-row">
@@ -400,7 +408,7 @@
   <!-- Footer -->
   <div class="footer">
     <span class="footer-link" id="open-options-link">Options</span>
-    <span class="version">v1.0.0</span>
+    <span class="version">v1.1.0</span>
   </div>
 
   <script src="popup.js"></script>

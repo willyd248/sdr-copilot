@@ -8,6 +8,29 @@
 (function () {
   'use strict';
 
+  // ─── Sender Profile ──────────────────────────────────────────────────────────
+
+  let _senderProfile = null;
+
+  function loadSenderProfile() {
+    return new Promise(resolve => {
+      chrome.runtime.sendMessage({ type: 'GET_SETTINGS' }, res => {
+        _senderProfile = res?.settings?.senderProfile || {};
+        resolve(_senderProfile);
+      });
+    });
+  }
+
+  function senderSignature() {
+    const p = _senderProfile || {};
+    const name = p.name || '[Your Name]';
+    const title = p.title || '[Your Title]';
+    const company = p.company || '[Company]';
+    const phone = p.phone || '[Phone]';
+    const email = p.email || '[Email]';
+    return `${name}\n${title} | ${company}\n${phone} | ${email}`;
+  }
+
   // ─── Template Engine ──────────────────────────────────────────────────────────
 
   /**
@@ -69,9 +92,7 @@ Happy to jump on a quick call or answer any questions over email — whatever's 
 Looking forward to continuing the conversation.
 
 Best,
-[Your Name]
-[Your Title] | [Company]
-[Phone] | [Email]`;
+${senderSignature()}`;
 
     return { to: prospectEmail, subject, body };
   }
@@ -105,6 +126,7 @@ Best,
    */
   async function createPostCallDraft(callData) {
     try {
+      await loadSenderProfile();
       const email = buildFollowUpEmail(callData);
       if (!email.to) {
         return { ok: false, error: 'No prospect email address available — draft not created' };
