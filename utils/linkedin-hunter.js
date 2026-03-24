@@ -189,7 +189,7 @@
       font-weight: 500;
       z-index: 99999;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      border: 1px solid rgba(124,107,255,0.4);
+      border: 1px solid rgba(77,142,255,0.4);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -202,7 +202,7 @@
           to   { transform: translateY(0);    opacity: 1; }
         }
       </style>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7c6bff" stroke-width="2.5">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4d8eff" stroke-width="2.5">
         <path d="M20 6L9 17l-5-5"/>
       </svg>
       ${message}

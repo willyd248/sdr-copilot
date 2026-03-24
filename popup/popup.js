@@ -44,6 +44,10 @@
     orumTabId = await detectOrumTab();
     renderAll();
     bindEvents();
+
+    // Set version from manifest
+    const versionEl = document.getElementById('version-label');
+    if (versionEl) versionEl.textContent = `v${chrome.runtime.getManifest().version}`;
   }
 
   function fetchSettings() {

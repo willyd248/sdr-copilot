@@ -257,7 +257,6 @@
     const calls = getTodayCalls().filter(c => (c.talkSegments || []).length > 0);
     const stats = calcStats(calls);
     const { youPct, prospectPct } = stats;
-    const silencePct = Math.max(0, 100 - youPct - prospectPct);
 
     const container = document.getElementById('talktime-bars');
     container.innerHTML = `
@@ -279,16 +278,6 @@
           <div class="bar-fill bar-prospect" style="width:0%" data-target="${prospectPct}%"></div>
         </div>
       </div>
-      ${silencePct > 5 ? `
-      <div class="talktime-row">
-        <div class="talktime-meta">
-          <span class="talktime-speaker">Silence</span>
-          <span class="talktime-pct">${silencePct}%</span>
-        </div>
-        <div class="bar-track">
-          <div class="bar-fill bar-silence" style="width:0%" data-target="${silencePct}%"></div>
-        </div>
-      </div>` : ''}
       <div class="ratio-tip">
         ${youPct <= 45 ? '✅ Great balance — you\'re letting the prospect talk.' :
           youPct <= 55 ? '⚠ Slightly high talk ratio. Ask more open-ended questions.' :
