@@ -201,7 +201,7 @@
     el.clearHistoryBtn.addEventListener('click', async () => {
       if (confirm('Permanently delete all call history? This cannot be undone.')) {
         const res = await sendMsg('CLEAR_CALL_HISTORY');
-        if (res?.ok) showAlert(el.googleAlert, 'Call history cleared.', 'success');
+        if (res?.ok) showAlert(document.getElementById('data-alert'), 'Call history cleared.', 'success');
       }
     });
   }
