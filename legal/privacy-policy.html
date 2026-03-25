@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — SDR Copilot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: #09090b; color: #fafafa;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px; line-height: 1.7; -webkit-font-smoothing: antialiased; min-height: 100%;
+    }
+    a { color: #22c55e; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .site-header {
+      background: #111113; border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0 24px; height: 56px; display: flex; align-items: center;
+      gap: 12px; position: sticky; top: 0; z-index: 10;
+    }
+    .logo { font-size: 16px; font-weight: 700; color: #fafafa; text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-badge {
+      width: 28px; height: 28px; border-radius: 6px; background: #22c55e;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+    }
+    .header-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.08); margin: 0 4px; }
+    .header-label { font-size: 13px; color: #71717a; }
+    .header-spacer { flex: 1; }
+    .back-link { font-size: 13px; color: #71717a; text-decoration: none; }
+    .back-link:hover { color: #22c55e; text-decoration: none; }
+    .page-wrapper { max-width: 780px; margin: 0 auto; padding: 56px 24px 80px; }
+    .page-hero { margin-bottom: 48px; }
+    .page-hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.4px; }
+    .page-hero .meta { font-size: 13px; color: #71717a; }
+    .page-hero .meta span { color: #22c55e; }
+    .section { margin-bottom: 40px; padding-bottom: 40px; border-bottom: 1px solid rgba(255,255,255,0.07); }
+    .section:last-of-type { border-bottom: none; }
+    .section h2 { font-size: 15px; font-weight: 600; color: #fafafa; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .section h2::before { content: ''; display: block; width: 3px; height: 15px; background: #22c55e; border-radius: 2px; }
+    .section p { color: #a1a1aa; font-size: 14px; margin-bottom: 12px; }
+    .section p:last-child { margin-bottom: 0; }
+    ul.styled-list { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 8px; }
+    ul.styled-list li { font-size: 14px; color: #a1a1aa; padding-left: 18px; position: relative; }
+    ul.styled-list li::before { content: '–'; position: absolute; left: 0; color: #22c55e; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 16px; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; overflow: hidden; }
+    .data-table thead tr { background: #111113; }
+    .data-table th { padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; color: #71717a; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .data-table td { padding: 10px 14px; color: #a1a1aa; border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: top; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:nth-child(even) { background: #09090b; }
+    .data-table tbody tr:nth-child(odd) { background: #111113; }
+    .callout { background: rgba(34, 197, 94, 0.08); border: 1px solid rgba(34, 197, 94, 0.25); border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #a1a1aa; margin-top: 16px; }
+    .callout strong { color: #22c55e; }
+    .warning-callout { background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.25); border-radius: 8px; padding: 14px 18px; font-size: 13px; color: #a1a1aa; margin-top: 16px; }
+    .warning-callout strong { color: #fbbf24; }
+    .contact-box { background: #111113; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 20px 24px; margin-top: 16px; }
+    .contact-box p { font-size: 14px; color: #a1a1aa; margin-bottom: 10px; }
+    .contact-box p:last-child { margin-bottom: 0; }
+    .page-footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.07); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .page-footer p { font-size: 12px; color: #52525b; }
+    .page-footer nav { display: flex; gap: 16px; }
+    .page-footer nav a { font-size: 12px; color: #52525b; text-decoration: none; }
+    .page-footer nav a:hover { color: #22c55e; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header class="site-header">
+    <a href="/" class="logo"><span class="logo-badge">🎯</span> SDR Copilot</a>
+    <div class="header-divider"></div>
+    <span class="header-label">Privacy Policy</span>
+    <div class="header-spacer"></div>
+    <a href="/" class="back-link">← Back</a>
+  </header>
+
+  <div class="page-wrapper">
+
+    <div class="page-hero">
+      <h1>Privacy Policy</h1>
+      <p class="meta">Effective date: <span>January 1, 2025</span> &nbsp;·&nbsp; Last updated: <span>March 25, 2026</span></p>
+    </div>
+
+    <div class="section">
+      <h2>Overview</h2>
+      <p>SDR Copilot is a Chrome extension that assists sales development representatives by capturing tab audio during calls, transcribing conversations in real time, and integrating with Gmail and Salesforce to streamline prospecting and CRM workflows.</p>
+      <p>Because SDR Copilot handles sensitive data including audio, email, and CRM records, this Privacy Policy is detailed. Please read it fully before installing and using the extension.</p>
+      <p>By installing and using SDR Copilot, you agree to this policy. If you do not agree, do not install the extension.</p>
+    </div>
+
+    <div class="section">
+      <h2>Data We Collect and Process</h2>
+      <table class="data-table">
+        <thead>
+          <tr><th>Category</th><th>What we process</th><th>How it's handled</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Tab audio</strong></td>
+            <td>Audio from the active browser tab (e.g., a sales call in a web conferencing tab)</td>
+            <td>Captured via Chrome's tab capture API and streamed in real time to Deepgram for transcription. Audio is not stored on our servers after the session ends.</td>
+          </tr>
+          <tr>
+            <td><strong>Call transcripts</strong></td>
+            <td>Text transcription of call audio generated by Deepgram</td>
+            <td>Stored securely and associated with your account for post-call review and CRM logging</td>
+          </tr>
+          <tr>
+            <td><strong>Gmail data</strong></td>
+            <td>Email threads, contacts, and metadata accessed via the Gmail API</td>
+            <td>Read to surface prospect context; used to draft follow-up emails. Not stored beyond the session unless you explicitly save a draft.</td>
+          </tr>
+          <tr>
+            <td><strong>Salesforce data</strong></td>
+            <td>Lead, contact, opportunity, and activity records accessed via the Salesforce API</td>
+            <td>Read to surface CRM context; written when you explicitly log a call or create a record. Data transits our backend and is not stored separately.</td>
+          </tr>
+          <tr>
+            <td><strong>Account information</strong></td>
+            <td>Name, email, organization (at install/registration)</td>
+            <td>Stored for account management and billing</td>
+          </tr>
+          <tr>
+            <td><strong>Usage analytics</strong></td>
+            <td>Feature usage, session counts, error events (anonymized)</td>
+            <td>Used to improve the product</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="warning-callout">
+        <strong>Audio capture disclosure:</strong> SDR Copilot captures audio from browser tabs when you explicitly activate recording. You are responsible for ensuring that all parties on a call have been informed and have consented to recording, as required by applicable wiretapping and call recording laws in your jurisdiction. SDR Copilot does not activate recording without your explicit action.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Audio Data and Transcription</h2>
+      <p>When you start a recording session, audio from the active tab is streamed in real time to <strong>Deepgram</strong> for speech-to-text transcription. The following applies:</p>
+      <ul class="styled-list">
+        <li>Audio streams are sent over encrypted connections (TLS)</li>
+        <li>Deepgram processes audio to generate transcripts and does not use API audio for model training by default</li>
+        <li>Raw audio is not stored on Deepgram's servers after the transcription session ends (subject to Deepgram's current data retention policy)</li>
+        <li>Transcripts are stored in your SDR Copilot account and are accessible only to you and administrators of your organization account (if applicable)</li>
+        <li>You can delete transcripts from your account at any time</li>
+      </ul>
+      <p style="margin-top: 12px;">See Deepgram's privacy policy at <a href="https://deepgram.com/privacy">deepgram.com/privacy</a>.</p>
+    </div>
+
+    <div class="section">
+      <h2>Gmail API Access</h2>
+      <p>SDR Copilot requests access to your Gmail account to surface email history with prospects and assist with follow-up drafting. Our use of data obtained from Gmail APIs complies with the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener noreferrer">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+      <ul class="styled-list">
+        <li>We access only the threads and messages necessary to provide the feature you are actively using</li>
+        <li>We do not use Gmail data for advertising or to build profiles for any purpose other than operating the extension</li>
+        <li>We do not share Gmail data with third parties except Salesforce (when you log an email to CRM) and as described in this policy</li>
+        <li>You can revoke Gmail access at any time via your Google Account settings</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Salesforce API Access</h2>
+      <p>SDR Copilot connects to Salesforce to read prospect and account context and to write call logs and activities when you instruct it to. We access only the objects and records necessary for these functions. We do not read or write Salesforce data without your explicit instruction.</p>
+      <p>Salesforce data transits our backend solely for the purpose of presenting it in the extension UI or writing it back to Salesforce. We do not independently store or analyze your Salesforce CRM records.</p>
+    </div>
+
+    <div class="section">
+      <h2>Chrome Extension Permissions</h2>
+      <p>SDR Copilot requires the following Chrome permissions:</p>
+      <ul class="styled-list">
+        <li><strong>tabCapture:</strong> To capture audio from the active tab when you start a recording</li>
+        <li><strong>tabs:</strong> To identify the active tab and access its URL for context</li>
+        <li><strong>storage:</strong> To persist settings and session state locally</li>
+        <li><strong>identity:</strong> To handle OAuth authentication with Google and Salesforce</li>
+      </ul>
+      <p style="margin-top: 12px;">The extension does not use permissions beyond what is listed above. It does not access camera, clipboard, or browser history.</p>
+    </div>
+
+    <div class="section">
+      <h2>Third-Party Services</h2>
+      <ul class="styled-list">
+        <li><strong>Deepgram:</strong> Real-time speech transcription. Audio is streamed during active recording sessions. See <a href="https://deepgram.com/privacy">deepgram.com/privacy</a>.</li>
+        <li><strong>Google (Gmail API + OAuth):</strong> Email access and authentication. See <a href="https://policies.google.com/privacy">policies.google.com/privacy</a>.</li>
+        <li><strong>Salesforce:</strong> CRM data access. Subject to your organization's Salesforce data processing agreements. See <a href="https://www.salesforce.com/company/privacy/">salesforce.com/company/privacy</a>.</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Data Security</h2>
+      <p>SDR Copilot takes the following security measures:</p>
+      <ul class="styled-list">
+        <li>All data is transmitted over TLS-encrypted connections</li>
+        <li>API credentials and OAuth tokens are stored encrypted</li>
+        <li>Access to stored transcripts is restricted to the authenticated account holder</li>
+        <li>We do not log full audio or full email content in server-side application logs</li>
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2>Your Rights</h2>
+      <ul class="styled-list">
+        <li><strong>Access:</strong> Request a copy of your account data and stored transcripts</li>
+        <li><strong>Deletion:</strong> Delete individual transcripts within the extension, or request full account deletion</li>
+        <li><strong>Revoke integrations:</strong> Revoke Gmail access via Google Account settings; revoke Salesforce access via Salesforce Connected Apps</li>
+        <li><strong>Portability:</strong> Request an export of your transcripts in plain text or JSON format</li>
+      </ul>
+      <p style="margin-top: 14px;">To exercise these rights, contact <a href="mailto:privacy@sdrcopilot.com">privacy@sdrcopilot.com</a>.</p>
+    </div>
+
+    <div class="section">
+      <h2>Call Recording Compliance</h2>
+      <p>Call recording laws vary by jurisdiction. In some U.S. states and many countries, all-party consent is required before recording a phone or online call. You are solely responsible for complying with applicable laws when using SDR Copilot's recording features. SDR Copilot is not responsible for your failure to obtain required consents.</p>
+      <div class="callout">
+        <strong>Best practice:</strong> Always inform all call participants that the call is being recorded, regardless of jurisdiction. Many organizations require this as a standard practice.
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Data Retention</h2>
+      <p>Transcripts are retained until you delete them or close your account. Upon account deletion, all transcripts and account data are deleted within 30 days. OAuth tokens are revoked immediately upon account deletion or revocation request.</p>
+    </div>
+
+    <div class="section">
+      <h2>Children's Privacy</h2>
+      <p>SDR Copilot is a professional tool intended for use by adults in sales roles. We do not knowingly collect data from persons under 18 years of age.</p>
+    </div>
+
+    <div class="section">
+      <h2>Changes to This Policy</h2>
+      <p>We may update this Privacy Policy. Material changes will be communicated via the extension update notes and email. Continued use after changes constitutes acceptance.</p>
+    </div>
+
+    <div class="section">
+      <h2>Contact</h2>
+      <div class="contact-box">
+        <p>Privacy inquiries: <a href="mailto:privacy@sdrcopilot.com">privacy@sdrcopilot.com</a></p>
+        <p>Support: <a href="mailto:support@sdrcopilot.com">support@sdrcopilot.com</a></p>
+      </div>
+    </div>
+
+    <footer class="page-footer">
+      <p>© 2025 SDR Copilot. All rights reserved.</p>
+      <nav>
+        <a href="/privacy-policy.html">Privacy Policy</a>
+        <a href="/terms.html">Terms of Service</a>
+        <a href="/">Home</a>
+      </nav>
+    </footer>
+
+  </div>
+</body>
+</html>

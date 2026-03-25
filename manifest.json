@@ -97,7 +97,9 @@
         "offscreen/offscreen.html",
         "audio/audio-processor.js",
         "assets/styles/overlay.css",
-        "assets/icons/*"
+        "assets/icons/*",
+        "legal/privacy-policy.html",
+        "legal/terms.html"
       ],
       "matches": ["<all_urls>"]
     }
