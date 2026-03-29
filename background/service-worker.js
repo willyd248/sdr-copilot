@@ -546,7 +546,7 @@ async function ensureOffscreenDocument() {
 
   await chrome.offscreen.createDocument({
     url: 'offscreen/offscreen.html',
-    reasons: ['USER_MEDIA'],
+    reasons: ['AUDIO_PLAYBACK'],
     justification: 'Capture tab audio for real-time transcription'
   });
   _offscreenCreated = true;
