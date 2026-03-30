@@ -239,14 +239,21 @@
         return;
       }
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          mandatory: {
-            chromeMediaSource: 'tab',
-            chromeMediaSourceId: resp.streamId
+      // When resp.offscreen === true the offscreen document has already consumed
+      // the stream via getUserMedia; calling it again here would double-capture.
+      // Pass null so DeepgramClient skips the local audio pipeline — audio
+      // arrives instead via OFFSCREEN_AUDIO_CHUNK relay messages.
+      let stream = null;
+      if (!resp.offscreen) {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            mandatory: {
+              chromeMediaSource: 'tab',
+              chromeMediaSourceId: resp.streamId
+            }
           }
-        }
-      });
+        });
+      }
 
       state.audioStream = stream;
       state.recording = true;
