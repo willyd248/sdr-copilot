@@ -6,6 +6,9 @@
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
+const PH_KEY    = 'phc_nbJYTmmAEAmKmnmYKFsUZnLt4cpPxbFUmG8dQEFjSvxZ';
+const SENTRY_DSN = 'https://f7202c3f38ae91f64b037e833b2f9a0b@o4511073877229568.ingest.us.sentry.io/4511140406034432';
+
 const ALARM_NIGHTLY_REFRESH = 'nightly-dashboard-refresh';
 const STORAGE_CALL_HISTORY  = 'callHistory';
 const STORAGE_SETTINGS      = 'settings';
