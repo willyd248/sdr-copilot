@@ -15,6 +15,7 @@
 
   const el = {
     demoBadge:       document.getElementById('demo-badge'),
+    callBanner:      document.getElementById('call-banner'),
     overlayToggle:   document.getElementById('overlay-toggle'),
     dgKeyInput:      document.getElementById('dg-key-input'),
     dgSaveBtn:       document.getElementById('dg-save-btn'),
@@ -23,7 +24,6 @@
     openDashboard:   document.getElementById('open-dashboard-btn'),
     connectGoogle:   document.getElementById('connect-google-btn'),
     connectSF:       document.getElementById('connect-sf-btn'),
-    openOptions:     document.getElementById('open-options-btn'),
     openOptionsLink: document.getElementById('open-options-link'),
 
     // Status indicators
@@ -45,7 +45,6 @@
     renderAll();
     bindEvents();
 
-    // Set version from manifest
     const versionEl = document.getElementById('version-label');
     if (versionEl) versionEl.textContent = `v${chrome.runtime.getManifest().version}`;
   }
@@ -83,10 +82,15 @@
     // Demo badge
     el.demoBadge.style.display = isDemo ? 'inline-block' : 'none';
 
+    // Call banner (Orum tab detected)
+    if (el.callBanner) {
+      el.callBanner.classList.toggle('visible', !!orumTabId);
+    }
+
     // Overlay toggle
     el.overlayToggle.checked = settings.overlayEnabled !== false;
 
-    // Deepgram key input — show masked version if set
+    // Deepgram key input — show masked placeholder if set
     if (hasKey) {
       el.dgKeyInput.placeholder = '••••••••••••••••';
       el.dgKeyInput.value = '';
@@ -94,43 +98,48 @@
 
     // Status: Orum
     if (orumTabId) {
-      setStatus(el.siOrum, el.svOrum, 'active', 'Tab open');
+      setStatus(el.siOrum, el.svOrum, 'active', 'Open');
     } else {
-      setStatus(el.siOrum, el.svOrum, '', 'Not detected');
+      setStatus(el.siOrum, el.svOrum, '', 'None');
     }
 
     // Status: Deepgram
     if (hasKey) {
-      setStatus(el.siDG, el.svDG, 'connected', 'API key set', 'ok');
+      setStatus(el.siDG, el.svDG, 'connected', 'Live', 'ok');
     } else if (isDemo) {
-      setStatus(el.siDG, el.svDG, 'warning', 'Demo mode', 'warn');
+      setStatus(el.siDG, el.svDG, 'warning', 'Demo', 'warn');
     } else {
-      setStatus(el.siDG, el.svDG, '', 'No key');
+      setStatus(el.siDG, el.svDG, '', 'None');
     }
 
     // Status: Google
     if (tokens.googleConnected || settings.googleConnected) {
-      setStatus(el.siGoogle, el.svGoogle, 'connected', 'Connected', 'ok');
-      el.connectGoogle.textContent = '✉ Gmail: Connected';
+      setStatus(el.siGoogle, el.svGoogle, 'connected', 'On', 'ok');
+      el.connectGoogle.textContent = '✉ Gmail ✓';
     } else {
-      setStatus(el.siGoogle, el.svGoogle, '', 'Not connected');
-      el.connectGoogle.textContent = '✉ Connect Gmail';
+      setStatus(el.siGoogle, el.svGoogle, '', 'Off');
+      el.connectGoogle.textContent = '✉ Gmail';
     }
 
     // Status: Salesforce
     if (tokens.salesforceConnected || settings.salesforceConnected) {
-      setStatus(el.siSF, el.svSF, 'connected', 'Connected', 'ok');
-      el.connectSF.textContent = '☁ SF: Connected';
+      setStatus(el.siSF, el.svSF, 'connected', 'On', 'ok');
+      el.connectSF.textContent = '☁ SF ✓';
     } else {
-      setStatus(el.siSF, el.svSF, '', 'Not connected');
+      setStatus(el.siSF, el.svSF, '', 'Off');
       el.connectSF.textContent = '☁ Salesforce';
+    }
+
+    // Primary button label
+    if (el.launchDemo) {
+      el.launchDemo.textContent = isDemo ? '▶ Watch Demo' : '▶ Watch Demo';
     }
   }
 
   function setStatus(indicatorEl, valueEl, indicatorClass, valueText, valueClass = '') {
-    indicatorEl.className = `status-indicator ${indicatorClass}`.trim();
+    indicatorEl.className = `status-dot ${indicatorClass}`.trim();
     valueEl.textContent = valueText;
-    valueEl.className = `status-value ${valueClass}`.trim();
+    valueEl.className = `status-val ${valueClass}`.trim();
   }
 
   // ─── Events ───────────────────────────────────────────────────────────────────
@@ -140,7 +149,6 @@
     el.overlayToggle.addEventListener('change', async () => {
       settings.overlayEnabled = el.overlayToggle.checked;
       await saveSettings({ overlayEnabled: settings.overlayEnabled });
-      // Notify active Orum tabs
       notifyOrumTab('TOGGLE_OVERLAY', { enabled: settings.overlayEnabled });
     });
 
@@ -194,17 +202,13 @@
           renderAll();
         }
       } else {
-        // Open options to configure SF client ID first
+        // Open options to configure SF client ID
         chrome.runtime.openOptionsPage();
         window.close();
       }
     });
 
-    // Open options
-    el.openOptions.addEventListener('click', () => {
-      chrome.runtime.openOptionsPage();
-      window.close();
-    });
+    // Open options/settings
     el.openOptionsLink.addEventListener('click', () => {
       chrome.runtime.openOptionsPage();
       window.close();
