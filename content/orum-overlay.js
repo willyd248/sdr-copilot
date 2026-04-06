@@ -233,19 +233,21 @@
         chrome.runtime.sendMessage({ type: 'CAPTURE_TAB_AUDIO' }, resolve)
       );
 
-      if (!resp?.ok || !resp.streamId) {
+      if (!resp?.ok) {
         console.warn('[SDR Copilot] Tab capture unavailable:', resp?.error);
         startDemoMode();
         return;
       }
 
-      // When resp.offscreen === true the offscreen document has already consumed
-      // the stream via getUserMedia; calling it again here would double-capture.
-      // Pass null so DeepgramClient skips the local audio pipeline — audio
-      // arrives instead via OFFSCREEN_AUDIO_CHUNK relay messages.
-      let stream = null;
+      // When the offscreen document owns the capture, the stream ID is already
+      // consumed — skip getUserMedia here and let PCM arrive via OFFSCREEN_AUDIO_CHUNK.
       if (!resp.offscreen) {
-        stream = await navigator.mediaDevices.getUserMedia({
+        if (!resp.streamId) {
+          console.warn('[SDR Copilot] No stream ID returned');
+          startDemoMode();
+          return;
+        }
+        const stream = await navigator.mediaDevices.getUserMedia({
           audio: {
             mandatory: {
               chromeMediaSource: 'tab',
@@ -253,9 +255,9 @@
             }
           }
         });
+        state.audioStream = stream;
       }
 
-      state.audioStream = stream;
       state.recording = true;
 
       const client = new DeepgramClient();
@@ -289,7 +291,9 @@
         }
       };
 
-      client.start(state.settings.deepgramApiKey, stream);
+      // Pass stream only in the non-offscreen path; in offscreen mode PCM arrives
+      // via OFFSCREEN_AUDIO_CHUNK messages which write directly to the WebSocket.
+      client.start(state.settings.deepgramApiKey, state.audioStream ?? null);
     } catch (err) {
       console.warn('[SDR Copilot] Transcription start failed:', err);
       startDemoMode();
