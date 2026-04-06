@@ -6,10 +6,11 @@
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const ALARM_NIGHTLY_REFRESH = 'nightly-dashboard-refresh';
-const STORAGE_CALL_HISTORY  = 'callHistory';
-const STORAGE_SETTINGS      = 'settings';
-const STORAGE_TOKENS        = 'tokens';
+const ALARM_NIGHTLY_REFRESH  = 'nightly-dashboard-refresh';
+const STORAGE_CALL_HISTORY   = 'callHistory';
+const STORAGE_SETTINGS       = 'settings';
+const STORAGE_TOKENS         = 'tokens';
+const STORAGE_LOCAL_SECRETS  = 'localSecrets'; // Sensitive creds never written to sync
 
 // Salesforce OAuth config (user fills client_id in options)
 const SF_AUTH_BASE = 'https://login.salesforce.com/services/oauth2';
@@ -164,8 +165,17 @@ async function handleGetSettings(sendResponse) {
 
 async function handleSaveSettings(newSettings, sendResponse) {
   try {
+    // salesforceClientSecret is sensitive — keep in local storage, never sync
+    const { salesforceClientSecret, ...syncableSettings } = newSettings;
+    if (salesforceClientSecret) {
+      await saveLocalSecrets({ salesforceClientSecret });
+    }
+
     const data = await chrome.storage.sync.get(STORAGE_SETTINGS);
-    const merged = { ...(data[STORAGE_SETTINGS] || {}), ...newSettings };
+    // Also remove any clientSecret that may have been written to sync previously
+    const existing = data[STORAGE_SETTINGS] || {};
+    delete existing.salesforceClientSecret;
+    const merged = { ...existing, ...syncableSettings };
     await chrome.storage.sync.set({ [STORAGE_SETTINGS]: merged });
     sendResponse({ ok: true });
   } catch (err) {
@@ -224,6 +234,16 @@ async function getTokens() {
 async function saveTokens(update) {
   const current = await getTokens();
   await chrome.storage.local.set({ [STORAGE_TOKENS]: { ...current, ...update } });
+}
+
+async function getLocalSecrets() {
+  const data = await chrome.storage.local.get(STORAGE_LOCAL_SECRETS);
+  return data[STORAGE_LOCAL_SECRETS] || {};
+}
+
+async function saveLocalSecrets(update) {
+  const current = await getLocalSecrets();
+  await chrome.storage.local.set({ [STORAGE_LOCAL_SECRETS]: { ...current, ...update } });
 }
 
 async function handleGetTokens(sendResponse) {
@@ -313,10 +333,11 @@ async function handleSalesforceAuth(payload, sendResponse) {
     const code = url.searchParams.get('code');
     if (!code) throw new Error('No authorization code returned from Salesforce');
 
-    // Exchange code for tokens — requires client_secret from settings
+    // Exchange code for tokens — requires client_secret from local secrets
     const settingsData = await chrome.storage.sync.get(STORAGE_SETTINGS);
     const settings = settingsData[STORAGE_SETTINGS] || {};
-    const clientSecret = settings.salesforceClientSecret || '';
+    const secrets = await getLocalSecrets();
+    const clientSecret = secrets.salesforceClientSecret || '';
 
     const tokenRes = await fetch(`${baseUrl}/services/oauth2/token`, {
       method: 'POST',
@@ -381,6 +402,7 @@ async function refreshSalesforceToken() {
 
   const settingsData = await chrome.storage.sync.get(STORAGE_SETTINGS);
   const settings = settingsData[STORAGE_SETTINGS] || {};
+  const secrets = await getLocalSecrets();
   const baseUrl = settings.salesforceEnvironment === 'sandbox'
     ? 'https://test.salesforce.com'
     : 'https://login.salesforce.com';
@@ -392,7 +414,7 @@ async function refreshSalesforceToken() {
       grant_type: 'refresh_token',
       refresh_token: tokens.salesforceRefreshToken,
       client_id: settings.salesforceClientId || '',
-      client_secret: settings.salesforceClientSecret || ''
+      client_secret: secrets.salesforceClientSecret || ''
     })
   });
 
