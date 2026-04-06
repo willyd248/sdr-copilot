@@ -449,6 +449,7 @@
         <div class="sdrc-header-left">
           <span class="sdrc-status-dot" id="sdrc-status-dot"></span>
           <span class="sdrc-title">SDR Copilot</span>
+          ${state.demoMode ? '<span class="sdrc-demo-mode-badge">DEMO</span>' : ''}
           <span class="sdrc-prospect-name" id="sdrc-prospect-name"></span>
         </div>
         <div class="sdrc-header-right">

@@ -3,18 +3,23 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SDR Copilot — Demo</title>
+  <title>SDR Copilot — Live Demo</title>
   <link rel="stylesheet" href="../assets/styles/overlay.css" />
   <style>
     :root {
-      --bg: #111319;
-      --surface: #111319;
-      --surface-container: #1E1F26;
-      --text: #E2E2EB;
-      --text-2: #C2C6D6;
-      --text-3: #8C909F;
-      --accent: #ADC6FF;
-      --accent-container: #4D8EFF;
+      --bg: #0d0f14;
+      --surface: #131519;
+      --surface-2: #1a1c24;
+      --surface-3: #20222c;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.12);
+      --text: #e2e4f0;
+      --text-2: #a8adc4;
+      --text-3: #5c6080;
+      --accent: #4d8eff;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -22,141 +27,617 @@
     body {
       background: var(--bg);
       color: var(--text);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font);
+      font-size: 13px;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      padding: 40px 20px;
     }
 
-    .demo-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .demo-header h1 {
-      font-size: 20px;
-      font-weight: 700;
-      color: var(--accent);
-      margin-bottom: 8px;
-    }
-
-    .demo-header p {
-      font-size: 13px;
-      color: var(--text-3);
-    }
-
-    .demo-stage {
-      width: 100%;
-      max-width: 800px;
-      background: var(--surface-container);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 12px;
-      padding: 24px;
-      min-height: 200px;
-      position: relative;
-    }
-
-    .demo-stage-header {
+    /* ── Top Bar ── */
+    .top-bar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 14px 28px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
     }
 
-    .demo-call-info {
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(140deg, #4d8eff 0%, #7c5cfc 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      box-shadow: 0 2px 10px rgba(77,142,255,0.35);
+    }
+
+    .logo-name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .demo-badge {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(245,158,11,0.12);
+      color: var(--warning);
+      border: 1px solid rgba(245,158,11,0.25);
+      border-radius: 4px;
+      padding: 3px 7px;
+    }
+
+    .top-bar-tagline {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    /* ── Stage ── */
+    .stage {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* Overlay mount — must fill panel so overlay can flex to 100% */
+    #demo-overlay-mount {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    /* ── Left: Orum Simulation ── */
+    .orum-panel {
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Fake browser chrome */
+    .browser-chrome {
+      background: var(--surface-2);
+      border-bottom: 1px solid var(--border);
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .browser-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .browser-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .browser-dot-r { background: #ff5f57; }
+    .browser-dot-y { background: #febc2e; }
+    .browser-dot-g { background: #28c840; }
+
+    .browser-url {
+      flex: 1;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: monospace;
+      letter-spacing: -0.01em;
+    }
+
+    /* Orum call header */
+    .orum-call-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      background: rgba(34,197,94,0.07);
+      border-bottom: 1px solid rgba(34,197,94,0.12);
+      flex-shrink: 0;
+    }
+
+    .orum-call-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .orum-call-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse-g 1.6s ease infinite;
+    }
+
+    @keyframes pulse-g {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .orum-call-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .orum-call-timer {
+      font-size: 11px;
+      font-family: monospace;
+      color: var(--text-3);
+      letter-spacing: 0.04em;
+    }
+
+    /* Orum prospect card */
+    .orum-content {
+      flex: 1;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .prospect-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .prospect-avatar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .prospect-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4d8eff, #7c5cfc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .prospect-name-block {}
+
+    .prospect-name {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .prospect-title {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 1px;
+    }
+
+    .prospect-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .prospect-field {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .prospect-field-icon {
+      width: 16px;
+      text-align: center;
+      color: var(--text-3);
+      flex-shrink: 0;
+    }
+
+    .prospect-field-val {
+      color: var(--text-2);
+    }
+
+    /* Orum call controls */
+    .orum-controls {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .orum-controls-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 10px;
+    }
+
+    .orum-btn-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .orum-btn {
+      flex: 1;
+      padding: 8px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      font-family: var(--font);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-3);
+      cursor: default;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .orum-btn-end {
+      background: rgba(239,68,68,0.1);
+      border-color: rgba(239,68,68,0.2);
+      color: #f87171;
+    }
+
+    /* Orum notes area */
+    .orum-notes {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .orum-notes-title {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 8px;
+    }
+
+    .orum-notes-body {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.6;
+      min-height: 60px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      padding-bottom: 8px;
+      font-style: italic;
+    }
+
+    /* ── Right: Overlay Panel ── */
+    .overlay-panel {
+      background: var(--surface-2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .overlay-panel-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 10px 14px 8px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    /* Override overlay positioning for inline demo rendering */
+    #sdrc-overlay {
+      position: relative !important;
+      bottom: auto !important;
+      right: auto !important;
+      width: 100% !important;
+      max-height: none !important;
+      flex: 1 !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+      background: transparent !important;
+      border-radius: 0 !important;
+      border: none !important;
+      border-left: none !important;
+      overflow: hidden;
+    }
+
+    /* Idle state before demo starts */
+    .overlay-idle {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 32px 20px;
+      text-align: center;
+    }
+
+    .overlay-idle-icon {
+      font-size: 32px;
+      opacity: 0.3;
+    }
+
+    .overlay-idle-text {
+      font-size: 12px;
+      color: var(--text-3);
+      line-height: 1.6;
+    }
+
+    /* ── Bottom Controls ── */
+    .controls-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .controls-left {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .demo-call-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10B981;
-      animation: pulse-dot 1.4s ease infinite;
-    }
-
-    @keyframes pulse-dot {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .demo-call-label {
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .demo-call-prospect {
-      font-size: 12px;
+    .controls-right {
+      font-size: 11px;
       color: var(--text-3);
     }
 
-    .demo-controls {
+    .btn {
       display: flex;
-      gap: 8px;
-      margin-top: 24px;
-    }
-
-    .demo-btn {
-      padding: 8px 16px;
-      border-radius: 6px;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 7px;
       border: none;
-      font-family: inherit;
+      font-family: var(--font);
       font-size: 12px;
       font-weight: 600;
       cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
+      transition: background 0.15s, box-shadow 0.15s;
+      letter-spacing: 0.01em;
     }
 
-    .demo-btn-start {
-      background: var(--accent-container);
+    .btn-primary {
+      background: var(--accent);
       color: white;
     }
 
-    .demo-btn-reset {
-      background: rgba(255,255,255,0.06);
-      color: var(--text-3);
-      border: 1px solid rgba(255,255,255,0.1);
+    .btn-primary:hover {
+      background: #3a7af0;
+      box-shadow: 0 0 0 3px rgba(77,142,255,0.2);
     }
 
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      background: var(--surface-3);
+      color: var(--text-2);
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255,255,255,0.06);
+      color: var(--text);
+    }
+
+    .btn-ghost:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    /* Progress bar */
+    .demo-progress {
+      height: 2px;
+      background: var(--border);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .demo-progress-fill {
+      height: 100%;
+      background: var(--accent);
+      width: 0%;
+      transition: width 1s linear;
+    }
+
+    /* Status message */
     #demo-status {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-3);
-      margin-top: 12px;
+    }
+
+    #demo-status.done {
+      color: var(--success);
     }
   </style>
 </head>
 <body>
 
-  <div class="demo-header">
-    <h1>SDR Copilot Demo</h1>
-    <p>Experience the full call overlay without needing an Orum tab</p>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="logo">
+        <div class="logo-mark">⚡</div>
+        <span class="logo-name">SDR Copilot</span>
+      </div>
+      <span class="demo-badge">Demo Mode</span>
+      <span class="top-bar-tagline">See what an SDR sees during a live call — no account needed</span>
+    </div>
+    <div class="top-bar-right">
+      <span>~45 second walkthrough</span>
+    </div>
   </div>
 
-  <div class="demo-stage">
-    <div class="demo-stage-header">
-      <div class="demo-call-info">
-        <div class="demo-call-dot" id="demo-dot" style="display:none;"></div>
-        <span class="demo-call-label">Simulated Call</span>
-        <span class="demo-call-prospect">— Sarah Chen, Acme Corp</span>
+  <!-- Progress bar -->
+  <div class="demo-progress">
+    <div class="demo-progress-fill" id="demo-progress-fill"></div>
+  </div>
+
+  <!-- Main Stage -->
+  <div class="stage">
+
+    <!-- Left: Orum Simulation -->
+    <div class="orum-panel">
+      <!-- Fake browser chrome -->
+      <div class="browser-chrome">
+        <div class="browser-dots">
+          <div class="browser-dot browser-dot-r"></div>
+          <div class="browser-dot browser-dot-y"></div>
+          <div class="browser-dot browser-dot-g"></div>
+        </div>
+        <div class="browser-url">app.orum.io/dialer/sessions/active</div>
+      </div>
+
+      <!-- Call status bar -->
+      <div class="orum-call-header">
+        <div class="orum-call-status">
+          <div class="orum-call-dot" id="orum-dot" style="opacity:0;"></div>
+          <span class="orum-call-label" id="orum-call-label" style="color:var(--text-3);">Waiting for call…</span>
+        </div>
+        <span class="orum-call-timer" id="orum-timer"></span>
+      </div>
+
+      <!-- Orum content -->
+      <div class="orum-content">
+
+        <!-- Prospect card -->
+        <div class="prospect-card">
+          <div class="prospect-avatar-row">
+            <div class="prospect-avatar">SC</div>
+            <div class="prospect-name-block">
+              <div class="prospect-name">Sarah Chen</div>
+              <div class="prospect-title">VP of Sales · Acme Corp</div>
+            </div>
+          </div>
+          <div class="prospect-fields">
+            <div class="prospect-field">
+              <span class="prospect-field-icon">✉</span>
+              <span class="prospect-field-val">sarah@acmecorp.com</span>
+            </div>
+            <div class="prospect-field">
+              <span class="prospect-field-icon">🏢</span>
+              <span class="prospect-field-val">Acme Corp — Series B, ~120 employees</span>
+            </div>
+            <div class="prospect-field">
+              <span class="prospect-field-icon">📞</span>
+              <span class="prospect-field-val">(415) 555-0187</span>
+            </div>
+            <div class="prospect-field">
+              <span class="prospect-field-icon">📍</span>
+              <span class="prospect-field-val">San Francisco, CA</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call controls (decorative) -->
+        <div class="orum-controls">
+          <div class="orum-controls-title">Call Controls</div>
+          <div class="orum-btn-row">
+            <div class="orum-btn">🎙 Mute</div>
+            <div class="orum-btn">⏸ Hold</div>
+            <div class="orum-btn orum-btn-end">📵 End</div>
+          </div>
+        </div>
+
+        <!-- Call notes (decorative) -->
+        <div class="orum-notes">
+          <div class="orum-notes-title">Call Notes</div>
+          <div class="orum-notes-body" id="orum-notes">SDR Copilot is capturing your call in real-time →</div>
+        </div>
+
       </div>
     </div>
 
-    <div id="demo-overlay-container">
-      <!-- The overlay will be injected here -->
+    <!-- Right: SDR Copilot Overlay -->
+    <div class="overlay-panel">
+      <div class="overlay-panel-label">SDR Copilot Overlay</div>
+
+      <!-- Idle state (before demo starts) -->
+      <div class="overlay-idle" id="overlay-idle">
+        <div class="overlay-idle-icon">⚡</div>
+        <div class="overlay-idle-text">
+          Start the demo to see SDR Copilot activate<br>
+          during a live call with Sarah Chen.
+        </div>
+      </div>
+
+      <!-- Overlay injected here by demo.js -->
+      <div id="demo-overlay-mount"></div>
     </div>
 
-    <div class="demo-controls">
-      <button class="demo-btn demo-btn-start" id="start-demo-btn">Start Demo Call</button>
-      <button class="demo-btn demo-btn-reset" id="reset-demo-btn" style="display:none;">Reset</button>
+  </div>
+
+  <!-- Controls Bar -->
+  <div class="controls-bar">
+    <div class="controls-left">
+      <button class="btn btn-primary" id="start-btn">▶ Start Demo</button>
+      <button class="btn btn-ghost" id="replay-btn" style="display:none;">↺ Replay</button>
+      <span id="demo-status"></span>
     </div>
-    <div id="demo-status"></div>
+    <div class="controls-right" id="controls-hint">
+      Live transcription · Objection detection · Automated follow-up
+    </div>
   </div>
 
   <script src="../utils/ai-coach.js"></script>
