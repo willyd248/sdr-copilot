@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <!-- Background -->
+  <rect width="1200" height="630" fill="#0d0f14"/>
+
+  <!-- Subtle grid lines -->
+  <line x1="0" y1="315" x2="1200" y2="315" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+  <line x1="600" y1="0" x2="600" y2="630" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+
+  <!-- Glow -->
+  <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+    <stop offset="0%" stop-color="#4d8eff" stop-opacity="0.06"/>
+    <stop offset="100%" stop-color="#0d0f14" stop-opacity="0"/>
+  </radialGradient>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+
+  <!-- Logo mark -->
+  <rect x="96" y="220" width="56" height="56" rx="14" fill="url(#logoGrad)"/>
+  <defs>
+    <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4d8eff"/>
+      <stop offset="100%" stop-color="#7c5cfc"/>
+    </linearGradient>
+    <linearGradient id="textGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4d8eff"/>
+      <stop offset="100%" stop-color="#22c55e"/>
+    </linearGradient>
+  </defs>
+  <polygon points="124,233 136,240 136,252 124,259 112,252 112,240" fill="white" opacity="0.9"/>
+  <circle cx="124" cy="246" r="5" fill="#0d0f14"/>
+
+  <!-- Product name -->
+  <text x="96" y="322" font-family="Inter, -apple-system, sans-serif" font-size="48" font-weight="800" fill="#e4e5f0" letter-spacing="-1.5">SDR Copilot</text>
+
+  <!-- Tagline with gradient simulation (two-tone) -->
+  <text x="96" y="380" font-family="Inter, -apple-system, sans-serif" font-size="26" font-weight="500" fill="#b8bdd0">Real-time AI coaching for cold callers on Orum.</text>
+
+  <!-- Feature pills -->
+  <rect x="96" y="416" width="196" height="36" rx="18" fill="rgba(77,142,255,0.12)" stroke="rgba(77,142,255,0.3)" stroke-width="1"/>
+  <text x="194" y="439" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#4d8eff" text-anchor="middle">Objection Detection</text>
+
+  <rect x="308" y="416" width="174" height="36" rx="18" fill="rgba(34,197,94,0.1)" stroke="rgba(34,197,94,0.3)" stroke-width="1"/>
+  <text x="395" y="439" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#22c55e" text-anchor="middle">Auto Salesforce Log</text>
+
+  <rect x="498" y="416" width="152" height="36" rx="18" fill="rgba(124,92,252,0.1)" stroke="rgba(124,92,252,0.3)" stroke-width="1"/>
+  <text x="574" y="439" font-family="Inter, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#a78bfa" text-anchor="middle">Gmail Drafts</text>
+
+  <!-- Overlay mockup (right side) -->
+  <rect x="750" y="80" width="360" height="460" rx="16" fill="rgba(15,17,23,0.96)" stroke="rgba(66,71,84,0.5)" stroke-width="1"/>
+
+  <!-- Overlay header -->
+  <rect x="750" y="80" width="360" height="52" rx="16" fill="rgba(22,24,32,0.98)"/>
+  <rect x="750" y="112" width="360" height="20" fill="rgba(22,24,32,0.98)"/>
+  <rect x="750" y="131" width="360" height="1" fill="rgba(66,71,84,0.3)"/>
+
+  <!-- Logo in overlay -->
+  <rect x="768" y="96" width="22" height="22" rx="6" fill="url(#logoGrad)"/>
+  <text x="798" y="112" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#e2e2eb">SDR Copilot</text>
+
+  <!-- Recording dot -->
+  <circle cx="1078" cy="107" r="5" fill="#ff4757">
+    <animate attributeName="opacity" values="1;0.4;1" dur="1.4s" repeatCount="indefinite"/>
+  </circle>
+  <text x="1090" y="112" font-family="Inter, -apple-system, sans-serif" font-size="11" fill="#8c909f">2:14</text>
+
+  <!-- Transcript section -->
+  <text x="768" y="162" font-family="Inter, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#8c909f" letter-spacing="1">LIVE TRANSCRIPT</text>
+
+  <!-- Prospect line -->
+  <rect x="768" y="172" width="56" height="16" rx="3" fill="rgba(78,222,163,0.15)"/>
+  <text x="796" y="184" font-family="Inter, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#4edea3" text-anchor="middle">Prospect</text>
+  <text x="832" y="184" font-family="Inter, -apple-system, sans-serif" font-size="11" fill="#c2c6d6">The price is too high for us right now…</text>
+
+  <!-- SDR line -->
+  <rect x="768" y="196" width="30" height="16" rx="3" fill="rgba(77,142,255,0.18)"/>
+  <text x="783" y="208" font-family="Inter, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#adc6ff" text-anchor="middle">You</text>
+  <text x="806" y="208" font-family="Inter, -apple-system, sans-serif" font-size="11" fill="#c2c6d6">Let me show you the ROI on this—</text>
+
+  <!-- Divider -->
+  <rect x="768" y="224" width="324" height="1" fill="rgba(66,71,84,0.2)"/>
+
+  <!-- Coaching section -->
+  <text x="768" y="246" font-family="Inter, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#8c909f" letter-spacing="1">COACHING TIP</text>
+
+  <!-- Objection card -->
+  <rect x="768" y="256" width="324" height="80" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.35)" stroke-width="1"/>
+  <rect x="768" y="256" width="3" height="80" rx="1" fill="#f59e0b"/>
+  <text x="784" y="278" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#e2e2eb">💰 Pricing objection detected</text>
+  <rect x="784" y="288" width="294" height="36" rx="6" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>
+  <text x="800" y="310" font-family="Inter, -apple-system, sans-serif" font-size="11" fill="#c2c6d6">"What does it cost you not to solve this today?"</text>
+
+  <!-- Post-call stats -->
+  <text x="768" y="364" font-family="Inter, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#8c909f" letter-spacing="1">POST-CALL</text>
+
+  <rect x="768" y="374" width="96" height="56" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(66,71,84,0.2)" stroke-width="1"/>
+  <text x="816" y="402" font-family="Inter, -apple-system, sans-serif" font-size="20" font-weight="800" fill="#e2e2eb" text-anchor="middle">3</text>
+  <text x="816" y="420" font-family="Inter, -apple-system, sans-serif" font-size="10" fill="#8c909f" text-anchor="middle">Objections</text>
+
+  <rect x="874" y="374" width="96" height="56" rx="6" fill="rgba(255,255,255,0.04)" stroke="rgba(66,71,84,0.2)" stroke-width="1"/>
+  <text x="922" y="402" font-family="Inter, -apple-system, sans-serif" font-size="20" font-weight="800" fill="#e2e2eb" text-anchor="middle">4:32</text>
+  <text x="922" y="420" font-family="Inter, -apple-system, sans-serif" font-size="10" fill="#8c909f" text-anchor="middle">Duration</text>
+
+  <rect x="980" y="374" width="96" height="56" rx="6" fill="rgba(34,197,94,0.06)" stroke="rgba(34,197,94,0.2)" stroke-width="1"/>
+  <text x="1028" y="402" font-family="Inter, -apple-system, sans-serif" font-size="20" font-weight="800" fill="#22c55e" text-anchor="middle">✓</text>
+  <text x="1028" y="420" font-family="Inter, -apple-system, sans-serif" font-size="10" fill="#8c909f" text-anchor="middle">SF Logged</text>
+
+  <!-- Footer buttons in overlay -->
+  <rect x="768" y="450" width="150" height="34" rx="6" fill="#4d8eff"/>
+  <text x="843" y="471" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="600" fill="white" text-anchor="middle">Send Email Draft</text>
+
+  <rect x="928" y="450" width="150" height="34" rx="6" fill="rgba(255,255,255,0.07)" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+  <text x="1003" y="471" font-family="Inter, -apple-system, sans-serif" font-size="12" font-weight="500" fill="#c2c6d6" text-anchor="middle">View Transcript</text>
+
+  <!-- Free badge -->
+  <rect x="96" y="490" width="110" height="32" rx="8" fill="rgba(34,197,94,0.1)" stroke="rgba(34,197,94,0.25)" stroke-width="1"/>
+  <text x="151" y="511" font-family="Inter, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#22c55e" text-anchor="middle">Free Chrome Extension</text>
+</svg>

@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- ── Primary SEO ── -->
+  <title>SDR Copilot — Real-Time AI Sales Coach for Cold Callers</title>
+  <meta name="description" content="SDR Copilot is a Chrome extension that coaches you live during Orum cold calls — detects objections, suggests responses, and auto-logs to Salesforce. Free for SDRs." />
+  <meta name="keywords" content="SDR AI assistant, real-time call coaching, Chrome extension for sales, objection handling, Orum integration, Salesforce call logging, cold calling tool, sales development rep tool" />
+  <link rel="canonical" href="https://sdrcopilot.vercel.app/" />
+
+  <!-- ── Open Graph ── -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="SDR Copilot — AI Sales Coach for Cold Callers" />
+  <meta property="og:description" content="Real-time objection coaching, automatic Salesforce logging, and post-call email drafts — all inside Orum." />
+  <meta property="og:image" content="https://sdrcopilot.vercel.app/og-image.png" />
+  <meta property="og:url" content="https://sdrcopilot.vercel.app/" />
+  <meta property="og:site_name" content="SDR Copilot" />
+
+  <!-- ── Twitter Card ── -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="SDR Copilot — AI Sales Coach" />
+  <meta name="twitter:description" content="Chrome extension that coaches you live on Orum cold calls. Detect objections. Auto-log to Salesforce. Draft follow-up emails." />
+  <meta name="twitter:image" content="https://sdrcopilot.vercel.app/og-image.png" />
+
+  <!-- ── Fonts ── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- ── Structured Data: SoftwareApplication ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "SDR Copilot",
+    "applicationCategory": "BusinessApplication",
+    "applicationSubCategory": "Sales Productivity",
+    "operatingSystem": "Chrome",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "SDR Copilot is a Chrome extension for sales development reps that provides real-time AI coaching during Orum cold calls, detects objections, and automatically logs activity to Salesforce.",
+    "featureList": [
+      "Real-time objection detection",
+      "Live call transcription via Deepgram",
+      "Automatic Salesforce task logging",
+      "Post-call email draft generation",
+      "Call history dashboard"
+    ],
+    "url": "https://sdrcopilot.vercel.app/",
+    "softwareVersion": "1.1.0",
+    "author": {
+      "@type": "Person",
+      "name": "Will DiMaio"
+    }
+  }
+  </script>
+
+  <!-- ── Structured Data: FAQPage ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is SDR Copilot?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "SDR Copilot is a free Chrome extension that provides real-time AI coaching during cold calls on Orum. It detects objections as they happen, suggests responses, transcribes the call, and automatically logs the activity to Salesforce."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does real-time call coaching work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "SDR Copilot captures your call audio directly in the browser using the Chrome tab capture API, streams it to Deepgram for live transcription, and then analyzes the transcript for objection patterns. When an objection is detected, a coaching cue appears on screen instantly — no manual input required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does SDR Copilot work with Salesforce?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. SDR Copilot automatically creates a Salesforce Task after each call with the transcript summary, duration, objections detected, and disposition — no copy-pasting required."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is SDR Copilot free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, SDR Copilot is free to install from the Chrome Web Store. You need your own Deepgram API key (free tier available) for transcription."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What sales platforms does SDR Copilot support?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "SDR Copilot currently integrates with Orum for call detection and dialing, Salesforce for CRM logging, and Gmail for post-call email drafts."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What objections can SDR Copilot detect?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "SDR Copilot detects six objection categories in real time: pricing objections, timing objections, competitor mentions, gatekeeper deflections, 'not interested' signals, and requests to email instead of call."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --bg-2: #111419;
+      --surface: #161820;
+      --surface-2: #1e2028;
+      --border: rgba(255,255,255,0.07);
+      --border-strong: rgba(255,255,255,0.12);
+      --text: #e4e5f0;
+      --text-2: #b8bdd0;
+      --text-3: #6b7087;
+      --accent: #4d8eff;
+      --accent-hover: #3a7af0;
+      --accent-dim: rgba(77,142,255,0.12);
+      --success: #22c55e;
+      --success-dim: rgba(34,197,94,0.1);
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 15px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,15,20,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .nav-logo-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: linear-gradient(140deg, #4d8eff 0%, #7c5cfc 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px rgba(77,142,255,0.35);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 14px;
+      color: var(--text-3);
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover { color: var(--text); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, opacity 0.15s;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      box-shadow: 0 0 0 3px rgba(77,142,255,0.22);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text-2);
+      border: 1px solid var(--border-strong);
+    }
+
+    .btn-outline:hover {
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .btn-lg {
+      font-size: 15px;
+      padding: 12px 24px;
+      border-radius: 10px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 100px 24px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 500px;
+      background: radial-gradient(ellipse at center, rgba(77,142,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid rgba(77,142,255,0.2);
+      border-radius: 100px;
+      padding: 5px 14px;
+      margin-bottom: 28px;
+    }
+
+    .hero-eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+      animation: pulse 1.8s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 6vw, 62px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      color: var(--text);
+      margin-bottom: 20px;
+      max-width: 760px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, #4d8eff 0%, #22c55e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      color: var(--text-2);
+      line-height: 1.6;
+      max-width: 520px;
+      margin: 0 auto 40px;
+    }
+
+    .hero-ctas {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 72px;
+    }
+
+    .hero-note {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 16px;
+    }
+
+    /* ── Product Mock ── */
+    .hero-visual {
+      max-width: 760px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .hero-visual-glow {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 500px;
+      height: 100px;
+      background: radial-gradient(ellipse, rgba(77,142,255,0.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .mock-browser {
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .mock-browser-bar {
+      background: var(--bg-2);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .mock-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .mock-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .mock-dot:nth-child(1) { background: #ff5f57; }
+    .mock-dot:nth-child(2) { background: #febc2e; }
+    .mock-dot:nth-child(3) { background: #28c840; }
+
+    .mock-url-bar {
+      flex: 1;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--text-3);
+      font-family: monospace;
+    }
+
+    .mock-screen {
+      background: #1a1d26;
+      padding: 24px;
+      min-height: 340px;
+      position: relative;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    /* Orum-like dialer mockup */
+    .mock-dialer {
+      flex: 1;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .mock-dialer-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .mock-live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 1.4s ease infinite;
+    }
+
+    .mock-dialer-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .mock-dialer-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-left: auto;
+    }
+
+    .mock-prospect-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+    }
+
+    .mock-prospect-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .mock-prospect-role {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    .mock-waveform {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      height: 36px;
+      padding: 8px 0;
+    }
+
+    .mock-bar {
+      width: 3px;
+      background: var(--accent);
+      border-radius: 2px;
+      opacity: 0.7;
+    }
+
+    .mock-bar:nth-child(odd) { height: 60%; animation: wave 0.9s ease-in-out infinite; }
+    .mock-bar:nth-child(even) { height: 35%; animation: wave 0.9s ease-in-out infinite 0.15s; }
+    .mock-bar:nth-child(3n) { height: 85%; animation: wave 0.9s ease-in-out infinite 0.3s; }
+
+    @keyframes wave {
+      0%, 100% { transform: scaleY(1); }
+      50% { transform: scaleY(1.5); }
+    }
+
+    /* SDR Copilot overlay mockup */
+    .mock-overlay {
+      width: 280px;
+      background: rgba(15, 17, 23, 0.96);
+      border: 1px solid rgba(66, 71, 84, 0.4);
+      border-radius: 12px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.7);
+      overflow: hidden;
+      flex-shrink: 0;
+      animation: overlay-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes overlay-in {
+      from { opacity: 0; transform: translateX(20px) scale(0.97); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    .mock-overlay-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(66, 71, 84, 0.2);
+    }
+
+    .mock-overlay-logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .mock-overlay-badge {
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      background: linear-gradient(140deg, #4d8eff, #7c5cfc);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mock-overlay-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: #e2e2eb;
+    }
+
+    .mock-overlay-rec {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: #8c909f;
+    }
+
+    .mock-rec-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ff4757;
+      animation: pulse 1.4s ease infinite;
+    }
+
+    .mock-transcript-section {
+      padding: 8px 12px 6px;
+      border-bottom: 1px solid rgba(66, 71, 84, 0.15);
+    }
+
+    .mock-section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8c909f;
+      margin-bottom: 6px;
+    }
+
+    .mock-transcript-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .mock-speaker {
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 3px;
+      white-space: nowrap;
+    }
+
+    .mock-speaker-you {
+      background: rgba(77, 142, 255, 0.18);
+      color: #adc6ff;
+    }
+
+    .mock-speaker-prospect {
+      background: rgba(78, 222, 163, 0.15);
+      color: #4edea3;
+    }
+
+    .mock-transcript-text {
+      font-size: 11px;
+      color: #c2c6d6;
+      line-height: 1.4;
+    }
+
+    .mock-objection-section {
+      padding: 8px 12px 10px;
+    }
+
+    .mock-objection-card {
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-left: 3px solid #f59e0b;
+      border-radius: 7px;
+      padding: 8px 10px;
+      background: rgba(245, 158, 11, 0.06);
+      animation: obj-in 0.4s ease 0.3s backwards;
+    }
+
+    @keyframes obj-in {
+      from { opacity: 0; transform: translateX(8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .mock-obj-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #e2e2eb;
+      margin-bottom: 5px;
+    }
+
+    .mock-obj-chip {
+      font-size: 10.5px;
+      padding: 5px 8px;
+      border-radius: 5px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+      color: #c2c6d6;
+      line-height: 1.4;
+    }
+
+    /* ── Section layout ── */
+    .section {
+      padding: 96px 24px;
+    }
+
+    .section-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+    }
+
+    .section-eyebrow {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      line-height: 1.15;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      font-size: 17px;
+      color: var(--text-2);
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+    }
+
+    /* ── What section ── */
+    .what-section {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .what-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    @media (max-width: 768px) {
+      .what-grid { grid-template-columns: 1fr; gap: 40px; }
+      .nav-links { display: none; }
+      .hero { padding: 60px 16px 48px; }
+      .section { padding: 64px 16px; }
+    }
+
+    .what-text p {
+      font-size: 16px;
+      color: var(--text-2);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .what-text p:last-child { margin-bottom: 0; }
+
+    .what-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .what-stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .what-stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .what-stat-icon.blue { background: rgba(77,142,255,0.12); }
+    .what-stat-icon.green { background: rgba(34,197,94,0.12); }
+    .what-stat-icon.purple { background: rgba(124,92,252,0.12); }
+
+    .what-stat-label {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-bottom: 2px;
+    }
+
+    .what-stat-value {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    /* ── How It Works ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-top: 56px;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      left: 23px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, transparent, var(--border) 10%, var(--border) 90%, transparent);
+    }
+
+    .step {
+      display: flex;
+      gap: 24px;
+      padding: 0 0 40px;
+      position: relative;
+    }
+
+    .step:last-child { padding-bottom: 0; }
+
+    .step-num {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--accent);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-body {
+      padding-top: 10px;
+    }
+
+    .step-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      letter-spacing: -0.01em;
+    }
+
+    .step-desc {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.6;
+      max-width: 560px;
+    }
+
+    /* ── Features ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 56px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-2);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    .feature-icon.blue { background: rgba(77,142,255,0.12); border: 1px solid rgba(77,142,255,0.18); }
+    .feature-icon.green { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.18); }
+    .feature-icon.purple { background: rgba(124,92,252,0.1); border: 1px solid rgba(124,92,252,0.18); }
+    .feature-icon.amber { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.18); }
+
+    .feature-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+
+    .feature-desc {
+      font-size: 14px;
+      color: var(--text-2);
+      line-height: 1.6;
+    }
+
+    .feature-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 100px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-strong);
+      color: var(--text-3);
+    }
+
+    /* ── Who ── */
+    .who-section {
+      background: var(--bg-2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .who-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    .who-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px 24px;
+    }
+
+    .who-role {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .who-desc {
+      font-size: 13px;
+      color: var(--text-2);
+      line-height: 1.55;
+    }
+
+    /* ── FAQ ── */
+    .faq-list {
+      margin-top: 56px;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .faq-item:last-child { border-bottom: none; }
+
+    .faq-q {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      list-style: none;
+      background: var(--surface);
+      transition: background 0.15s;
+      user-select: none;
+    }
+
+    .faq-item[open] .faq-q { background: var(--surface-2); }
+
+    .faq-q::-webkit-details-marker { display: none; }
+
+    .faq-q:hover { background: var(--surface-2); }
+
+    .faq-chevron {
+      flex-shrink: 0;
+      transition: transform 0.2s;
+      color: var(--text-3);
+    }
+
+    .faq-item[open] .faq-chevron { transform: rotate(180deg); }
+
+    .faq-a {
+      padding: 0 24px 22px;
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.7;
+      background: var(--surface-2);
+    }
+
+    /* ── CTA Banner ── */
+    .cta-section {
+      padding: 96px 24px;
+    }
+
+    .cta-box {
+      max-width: 760px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(77,142,255,0.08) 0%, rgba(34,197,94,0.06) 100%);
+      border: 1px solid rgba(77,142,255,0.2);
+      border-radius: 20px;
+      padding: 64px 48px;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .cta-box { padding: 40px 24px; }
+    }
+
+    .cta-box h2 {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .cta-box p {
+      font-size: 17px;
+      color: var(--text-2);
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+
+    .cta-btns {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 40px 24px;
+    }
+
+    .footer-inner {
+      max-width: 1080px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-2);
+    }
+
+    .footer-mark {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(140deg, #4d8eff, #7c5cfc);
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-3);
+      transition: color 0.15s;
+    }
+
+    .footer-links a:hover { color: var(--text-2); }
+
+    .footer-copy {
+      font-size: 12px;
+      color: var(--text-3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Navigation ── -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">
+        <div class="nav-logo-mark">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2L13 5V11L8 14L3 11V5L8 2Z" fill="white" opacity="0.9"/>
+            <circle cx="8" cy="8" r="2.5" fill="white"/>
+          </svg>
+        </div>
+        SDR Copilot
+      </a>
+      <ul class="nav-links">
+        <li><a href="#how-it-works">How It Works</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#faq">FAQ</a></li>
+      </ul>
+      <a href="#install" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+          <path d="M7 1v8M4 6l3 3 3-3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M1 10v1.5A1.5 1.5 0 0 0 2.5 13h9A1.5 1.5 0 0 0 13 11.5V10" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Add to Chrome — Free
+      </a>
+    </div>
+  </nav>
+
+  <!-- ── Hero ── -->
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <span class="hero-eyebrow-dot"></span>
+      Built for SDRs on Orum
+    </div>
+    <h1>Your <span>AI copilot</span><br />for live sales calls</h1>
+    <p class="hero-sub">Real-time objection coaching, automatic Salesforce logging, and post-call email drafts — without lifting a finger.</p>
+    <div class="hero-ctas">
+      <a href="#install" class="btn btn-primary btn-lg">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <rect x="2" y="2" width="12" height="12" rx="3" fill="white" opacity="0.2"/>
+          <path d="M8 5v5M5.5 8l2.5 2.5L10.5 8" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Add to Chrome — Free
+      </a>
+      <a href="#how-it-works" class="btn btn-outline btn-lg">Watch how it works</a>
+    </div>
+
+    <!-- Product Mockup -->
+    <div class="hero-visual">
+      <div class="mock-browser">
+        <div class="mock-browser-bar">
+          <div class="mock-dots">
+            <div class="mock-dot"></div>
+            <div class="mock-dot"></div>
+            <div class="mock-dot"></div>
+          </div>
+          <div class="mock-url-bar">app.orum.io/dialer</div>
+        </div>
+        <div class="mock-screen">
+          <!-- Left: Orum-like dialer -->
+          <div class="mock-dialer">
+            <div class="mock-dialer-header">
+              <div class="mock-live-dot"></div>
+              <span class="mock-dialer-title">Active Call</span>
+              <span class="mock-dialer-sub">2:14</span>
+            </div>
+            <div class="mock-prospect-card">
+              <div class="mock-prospect-name">Sarah Chen</div>
+              <div class="mock-prospect-role">VP of Sales · Acme Corp</div>
+            </div>
+            <div class="mock-waveform">
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+              <div class="mock-bar"></div><div class="mock-bar"></div>
+            </div>
+          </div>
+
+          <!-- Right: SDR Copilot overlay -->
+          <div class="mock-overlay">
+            <div class="mock-overlay-header">
+              <div class="mock-overlay-logo">
+                <div class="mock-overlay-badge">
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <circle cx="5" cy="5" r="2.5" fill="white"/>
+                  </svg>
+                </div>
+                <span class="mock-overlay-title">SDR Copilot</span>
+              </div>
+              <div class="mock-overlay-rec">
+                <div class="mock-rec-dot"></div>
+                <span>2:14</span>
+              </div>
+            </div>
+
+            <div class="mock-transcript-section">
+              <div class="mock-section-label">Live Transcript</div>
+              <div class="mock-transcript-line">
+                <span class="mock-speaker mock-speaker-prospect">Prospect</span>
+                <span class="mock-transcript-text">Honestly the price is just too high for us right now…</span>
+              </div>
+              <div class="mock-transcript-line" style="margin-top: 4px;">
+                <span class="mock-speaker mock-speaker-you">You</span>
+                <span class="mock-transcript-text">I totally understand, let me show you the ROI—</span>
+              </div>
+            </div>
+
+            <div class="mock-objection-section">
+              <div class="mock-section-label">Coaching Tip</div>
+              <div class="mock-objection-card">
+                <div class="mock-obj-label">💰 Pricing objection detected</div>
+                <div class="mock-obj-chip">"What does it cost you not to solve this today?"</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="hero-visual-glow"></div>
+    </div>
+    <p class="hero-note">No subscription. No servers. Runs 100% in your browser.</p>
+  </section>
+
+  <!-- ── What is SDR Copilot ── -->
+  <section class="section what-section" id="what-is">
+    <div class="section-inner">
+      <div class="what-grid">
+        <div class="what-text">
+          <p class="section-eyebrow">What is SDR Copilot?</p>
+          <h2 class="section-title">AI coaching for every cold call</h2>
+          <p>SDR Copilot is a free Chrome extension that sits inside Orum while you dial. The moment a prospect raises a pricing concern, mentions a competitor, or starts to disengage, a coaching cue appears on your screen — no typing, no context switching.</p>
+          <p>After the call, it automatically creates a Salesforce task with the full summary, duration, and disposition, then drafts a personalized follow-up email from your transcript — ready to send in one click.</p>
+          <p>Built for SDRs who run high call volumes and need every advantage on every conversation.</p>
+        </div>
+        <div class="what-stats">
+          <div class="what-stat">
+            <div class="what-stat-icon blue">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M10 3L16 6.5V13.5L10 17L4 13.5V6.5L10 3Z" stroke="#4d8eff" stroke-width="1.5" stroke-linejoin="round"/>
+                <circle cx="10" cy="10" r="2.5" fill="#4d8eff"/>
+              </svg>
+            </div>
+            <div>
+              <div class="what-stat-label">Objection categories</div>
+              <div class="what-stat-value">6</div>
+            </div>
+          </div>
+          <div class="what-stat">
+            <div class="what-stat-icon green">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <polyline points="4,12 8,8 12,11 16,6" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="what-stat-label">Setup time</div>
+              <div class="what-stat-value">&lt;5 min</div>
+            </div>
+          </div>
+          <div class="what-stat">
+            <div class="what-stat-icon purple">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <circle cx="10" cy="10" r="7" stroke="#7c5cfc" stroke-width="1.5"/>
+                <path d="M10 7v4l2.5 2.5" stroke="#7c5cfc" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div class="what-stat-label">CRM logging</div>
+              <div class="what-stat-value">Automatic</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── How It Works ── -->
+  <section class="section" id="how-it-works">
+    <div class="section-inner">
+      <p class="section-eyebrow">How It Works</p>
+      <h2 class="section-title">From first ring to logged CRM task</h2>
+      <p class="section-sub">SDR Copilot runs in the background — you just make calls.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-title">Open Orum and start dialing</div>
+            <div class="step-desc">SDR Copilot detects your active Orum tab automatically. The overlay appears when a call connects — no buttons to click, no setup per call.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-title">Live transcript streams in real time</div>
+            <div class="step-desc">Your call audio is streamed to Deepgram Nova-2 for real-time speech-to-text. Both speaker turns — SDR and Prospect — are labeled and shown as the words are spoken.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <div class="step-title">Objection detected → coaching tip appears</div>
+            <div class="step-desc">When an objection phrase is detected (pricing, competition, timing, authority, interest, or email-me), an instant coaching cue appears in the overlay with a suggested response you can use right now.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-title">Call ends → post-call summary generated</div>
+            <div class="step-desc">A summary screen shows call duration, objection count, talk-time ratio, and suggested follow-up items — all extracted automatically from the transcript.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">5</div>
+          <div class="step-body">
+            <div class="step-title">Salesforce task logged, follow-up email drafted</div>
+            <div class="step-desc">With one click, a Salesforce Task is created with the full summary and disposition. A personalized Gmail draft is ready to review and send — no copy-pasting required.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Features ── -->
+  <section class="section" id="features" style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="section-inner">
+      <p class="section-eyebrow">Features</p>
+      <h2 class="section-title">Everything an SDR needs on a live call</h2>
+      <p class="section-sub">No AI subscription. No cloud backend. Each feature works with tools you already use.</p>
+
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon blue">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="8" stroke="#4d8eff" stroke-width="1.5"/>
+              <path d="M8 11l2 2 4-4" stroke="#4d8eff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="feature-title">Real-Time Objection Detection</div>
+          <div class="feature-desc">Detects six objection categories as the prospect speaks — pricing, competition, timing, authority, interest, and email-me. Coaching suggestions appear in under a second.</div>
+          <div class="feature-badges">
+            <span class="badge">💰 Pricing</span>
+            <span class="badge">⚔️ Competitor</span>
+            <span class="badge">⏰ Timing</span>
+            <span class="badge">🚫 Not interested</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon green">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <path d="M3 18V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H7l-4 3z" stroke="#22c55e" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M8 10h6M8 13h4" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="feature-title">Live Call Transcription</div>
+          <div class="feature-desc">Deepgram Nova-2 streams your call audio to text in real time, with speaker labels — SDR vs. Prospect. Full transcript saved for every call, searchable from the dashboard.</div>
+          <div class="feature-badges">
+            <span class="badge">Deepgram Nova-2</span>
+            <span class="badge">Speaker labels</span>
+            <span class="badge">Talk-time ratio</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon purple">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <rect x="3" y="5" width="16" height="14" rx="2" stroke="#7c5cfc" stroke-width="1.5"/>
+              <path d="M7 3v4M15 3v4M3 11h16" stroke="#7c5cfc" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="feature-title">Automatic Salesforce Logging</div>
+          <div class="feature-desc">After every call, SDR Copilot creates a Salesforce Task with the transcript summary, duration, detected objections, and your disposition — no manual data entry.</div>
+          <div class="feature-badges">
+            <span class="badge">Task creation</span>
+            <span class="badge">Disposition</span>
+            <span class="badge">OAuth secured</span>
+          </div>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon amber">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+              <path d="M3 7l9-4 9 4v1L12 12 3 8V7z" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>
+              <path d="M3 8v8l9 4 9-4V8" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="feature-title">AI-Drafted Follow-Up Email</div>
+          <div class="feature-desc">A personalized follow-up email is drafted from your call transcript and saved to Gmail as a draft — ready to review and send. Uses your real name, title, and company from settings.</div>
+          <div class="feature-badges">
+            <span class="badge">Gmail draft</span>
+            <span class="badge">Personalized</span>
+            <span class="badge">One-click send</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Who It's For ── -->
+  <section class="section" id="who">
+    <div class="section-inner">
+      <p class="section-eyebrow">Who It's For</p>
+      <h2 class="section-title">Built for high-volume cold callers</h2>
+      <p class="section-sub">SDR Copilot is purpose-built for sales development reps, cold callers, and Orum users who need every advantage on every call.</p>
+
+      <div class="who-grid">
+        <div class="who-card">
+          <div class="who-role">SDRs at B2B companies</div>
+          <div class="who-desc">Running 50–100+ dials a day on Orum. Need real-time guidance without breaking call flow.</div>
+        </div>
+        <div class="who-card">
+          <div class="who-role">AEs doing cold outreach</div>
+          <div class="who-desc">Account executives who prospect directly and want coaching without a full tool stack.</div>
+        </div>
+        <div class="who-card">
+          <div class="who-role">New SDR hires</div>
+          <div class="who-desc">Just ramping up. SDR Copilot acts as an always-on coach who knows every objection playbook.</div>
+        </div>
+        <div class="who-card">
+          <div class="who-role">Sales managers</div>
+          <div class="who-desc">Want consistent Salesforce logging across the team without chasing reps to fill in notes.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section class="section" id="faq" style="background: var(--bg-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);">
+    <div class="section-inner">
+      <p class="section-eyebrow">Frequently Asked Questions</p>
+      <h2 class="section-title">Common questions</h2>
+
+      <div class="faq-list">
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            What is SDR Copilot?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-a">SDR Copilot is a free Chrome extension that provides real-time AI coaching during cold calls on Orum. It detects objections as they happen, suggests responses, transcribes the call, and automatically logs the activity to Salesforce.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            How does real-time call coaching work?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-a">SDR Copilot captures your call audio directly in the browser using the Chrome tab capture API, streams it to Deepgram for live transcription, and then analyzes the transcript for objection patterns. When an objection is detected, a coaching cue appears on screen instantly — no manual input required.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Does SDR Copilot work with Salesforce?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-a">Yes. SDR Copilot automatically creates a Salesforce Task after each call with the transcript summary, duration, objections detected, and disposition — no copy-pasting required.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Is SDR Copilot free?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-a">Yes, SDR Copilot is free to install from the Chrome Web Store. You need your own Deepgram API key (free tier available) for transcription.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            What sales platforms does SDR Copilot support?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-a">SDR Copilot currently integrates with Orum for call detection and dialing, Salesforce for CRM logging, and Gmail for post-call email drafts.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            What objections can SDR Copilot detect?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-a">SDR Copilot detects six objection categories in real time: pricing objections, timing objections, competitor mentions, gatekeeper deflections, "not interested" signals, and requests to email instead of call.</div>
+        </details>
+
+        <details class="faq-item">
+          <summary class="faq-q">
+            Is my call data private?
+            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+              <path d="M5 7l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </summary>
+          <div class="faq-a">Call audio is streamed to Deepgram for transcription over an encrypted connection and is not stored after the session. Transcripts are stored locally in Chrome storage and are never shared with third parties beyond the integrations you enable (Salesforce, Gmail). See the <a href="/privacy" style="color: var(--accent);">Privacy Policy</a> for full details.</div>
+        </details>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Install CTA ── -->
+  <section class="cta-section" id="install">
+    <div class="cta-box">
+      <h2>Install Free</h2>
+      <p>Add SDR Copilot to Chrome and be coaching-ready on your next Orum call — setup takes under 5 minutes.</p>
+      <div class="cta-btns">
+        <a href="https://chrome.google.com/webstore" class="btn btn-primary btn-lg" aria-label="Add SDR Copilot to Chrome — Free">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+            <circle cx="9" cy="9" r="7" stroke="white" stroke-width="1.5"/>
+            <circle cx="9" cy="9" r="2.5" fill="white"/>
+            <path d="M9 6.5V3M6.5 9H3M9 11.5V15M11.5 9H15" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Add to Chrome — Free
+        </a>
+        <a href="mailto:support@sdrcopilot.com" class="btn btn-outline btn-lg">Contact Us</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <div class="footer-mark"></div>
+        SDR Copilot
+      </div>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="mailto:support@sdrcopilot.com">Contact</a>
+        <a href="https://github.com/willyd248/SDR-Copilot" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </nav>
+      <span class="footer-copy">© 2026 SDR Copilot</span>
+    </div>
+  </footer>
+
+</body>
+</html>
