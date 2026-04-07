@@ -56,7 +56,6 @@ async function initDefaultSettings() {
   if (!existing[STORAGE_SETTINGS]) {
     await chrome.storage.sync.set({
       [STORAGE_SETTINGS]: {
-        deepgramApiKey: '',
         googleConnected: false,
         salesforceConnected: false,
         salesforceInstanceUrl: '',
@@ -72,6 +71,19 @@ async function initDefaultSettings() {
     });
   }
 }
+
+// ─── Message Router ───────────────────────────────────────────────────────────
+
+// ─── Keyboard Shortcut Handler ────────────────────────────────────────────────
+
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command === 'toggle-overlay') {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (tab?.id) {
+      chrome.tabs.sendMessage(tab.id, { type: 'TOGGLE_OVERLAY' });
+    }
+  }
+});
 
 // ─── Message Router ───────────────────────────────────────────────────────────
 
@@ -160,7 +172,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function handleGetSettings(sendResponse) {
   try {
     const data = await chrome.storage.sync.get(STORAGE_SETTINGS);
-    sendResponse({ ok: true, settings: data[STORAGE_SETTINGS] || {} });
+    const settings = data[STORAGE_SETTINGS] || {};
+    // Merge sensitive keys from local storage so callers get a complete settings object
+    const secrets = await getLocalSecrets();
+    if (secrets.deepgramApiKey) settings.deepgramApiKey = secrets.deepgramApiKey;
+    sendResponse({ ok: true, settings });
   } catch (err) {
     sendResponse({ ok: false, error: err.message });
   }
@@ -168,16 +184,20 @@ async function handleGetSettings(sendResponse) {
 
 async function handleSaveSettings(newSettings, sendResponse) {
   try {
-    // salesforceClientSecret is sensitive — keep in local storage, never sync
-    const { salesforceClientSecret, ...syncableSettings } = newSettings;
+    // Sensitive keys — keep in local storage, never sync
+    const { salesforceClientSecret, deepgramApiKey, ...syncableSettings } = newSettings;
     if (salesforceClientSecret) {
       await saveLocalSecrets({ salesforceClientSecret });
     }
+    if (deepgramApiKey !== undefined) {
+      await saveLocalSecrets({ deepgramApiKey });
+    }
 
     const data = await chrome.storage.sync.get(STORAGE_SETTINGS);
-    // Also remove any clientSecret that may have been written to sync previously
+    // Also remove any sensitive key that may have been written to sync previously
     const existing = data[STORAGE_SETTINGS] || {};
     delete existing.salesforceClientSecret;
+    delete existing.deepgramApiKey;
     const merged = { ...existing, ...syncableSettings };
     await chrome.storage.sync.set({ [STORAGE_SETTINGS]: merged });
     sendResponse({ ok: true });

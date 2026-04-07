@@ -63,7 +63,9 @@
 }
 
 #sdrc-overlay.sdrc-hidden {
-  display: none;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(12px) scale(0.97);
 }
 
 #sdrc-overlay.sdrc-exiting {

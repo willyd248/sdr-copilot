@@ -33,6 +33,13 @@
     ]
   },
 
+  "commands": {
+    "toggle-overlay": {
+      "suggested_key": { "default": "Alt+Shift+S" },
+      "description": "Toggle SDR Copilot overlay"
+    }
+  },
+
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"

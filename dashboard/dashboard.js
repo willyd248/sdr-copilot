@@ -564,19 +564,20 @@ ${signature}`;
   }
 
   function exportCSV() {
+    const escape = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
     const calls = getTodayCalls();
     const rows = [
-      ['Date', 'Time', 'Contact', 'Company', 'Duration (s)', 'Outcome', 'Objections', 'Follow-ups'].join(','),
+      ['Date', 'Time', 'Contact', 'Company', 'Duration (s)', 'Outcome', 'Objections', 'Follow-ups'].map(escape).join(','),
       ...calls.map(c => [
         (c.startTime || '').split('T')[0],
         c.startTime ? new Date(c.startTime).toLocaleTimeString() : '',
-        `"${(c.prospectName || '').replace(/"/g, '""')}"`,
-        `"${(c.companyName || '').replace(/"/g, '""')}"`,
+        c.prospectName || '',
+        c.companyName || '',
         c.durationSeconds || 0,
         c.outcome || '',
-        `"${(c.objections || []).join('; ')}"`,
-        `"${(c.followUps || []).join('; ')}"`
-      ].join(','))
+        (c.objections || []).join('; '),
+        (c.followUps || []).join('; ')
+      ].map(escape).join(','))
     ];
     const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
     const a = document.createElement('a');

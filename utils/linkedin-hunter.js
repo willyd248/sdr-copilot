@@ -13,6 +13,11 @@
 (function () {
   'use strict';
 
+  const DEBUG = false;
+  const log = (...a) => { if (DEBUG) console.log('[SDR Copilot]', ...a); };
+  const warn = (...a) => { if (DEBUG) console.warn('[SDR Copilot]', ...a); };
+  const dbgErr = (...a) => { if (DEBUG) console.error('[SDR Copilot]', ...a); };
+
   // Only run on profile pages
   if (!window.location.pathname.startsWith('/in/')) return;
 
@@ -143,15 +148,16 @@
     // Wait for the profile header to load
     const nameEl = await waitFor('h1.text-heading-xlarge', 6000);
     if (!nameEl) {
-      console.warn('[SDR Copilot] LinkedIn profile header not found — skipping extraction');
+      warn('LinkedIn profile header not found — skipping extraction');
       return;
     }
 
     const profile = extractProfile();
+    showToast(`SDR Copilot: capturing contact info for ${profile.name}…`, '#4d8eff', 2000);
     const email = await tryExtractEmail();
     if (email) profile.email = email;
 
-    console.log('[SDR Copilot] Captured LinkedIn profile:', profile.name);
+    log('Captured LinkedIn profile:', profile.name);
 
     // Send to service worker for storage
     chrome.runtime.sendMessage({
@@ -159,7 +165,7 @@
       payload: profile,
     }, (response) => {
       if (chrome.runtime.lastError) {
-        console.error('[SDR Copilot] Failed to save contact:', chrome.runtime.lastError.message);
+        dbgErr('Failed to save contact:', chrome.runtime.lastError.message);
         return;
       }
       if (response?.saved) {
@@ -170,7 +176,7 @@
 
   // ─── Toast Notification ───────────────────────────────────────────────────
 
-  function showToast(message) {
+  function showToast(message, accentColor = '#4d8eff', duration = 3000) {
     const existing = document.getElementById('sdr-copilot-toast');
     if (existing) existing.remove();
 
@@ -189,7 +195,7 @@
       font-weight: 500;
       z-index: 99999;
       box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-      border: 1px solid rgba(77,142,255,0.4);
+      border: 1px solid ${accentColor}66;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -202,13 +208,13 @@
           to   { transform: translateY(0);    opacity: 1; }
         }
       </style>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4d8eff" stroke-width="2.5">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${accentColor}" stroke-width="2.5">
         <path d="M20 6L9 17l-5-5"/>
       </svg>
       ${message}
     `;
     document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    setTimeout(() => toast.remove(), duration);
   }
 
   // Start extraction after a short delay to ensure React hydration is done

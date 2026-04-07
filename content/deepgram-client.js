@@ -13,6 +13,11 @@
 (function () {
   'use strict';
 
+  const DEBUG = false;
+  const log = (...a) => { if (DEBUG) console.info('[DeepgramClient]', ...a); };
+  const warn = (...a) => { if (DEBUG) console.warn('[DeepgramClient]', ...a); };
+  const dbgErr = (...a) => { if (DEBUG) console.error('[DeepgramClient]', ...a); };
+
   // ─── DeepgramClient Class ───────────────────────────────────────────────────
 
   class DeepgramClient {
@@ -31,8 +36,6 @@
       this._stopping = false;
       this._silenceSent = false;
       this._useWorklet = false;
-      this._firstSpeakerIdentified = false;
-      this._sdrSpeakerId = null; // speaker ID identified as SDR
 
       // Callbacks
       this.onTranscript = null;
@@ -145,7 +148,7 @@
     async _setupAudioPipeline() {
       try {
         if (!this._audioStream) {
-          console.warn('[DeepgramClient] No audio stream available');
+          warn('No audio stream available');
           return;
         }
 
@@ -166,10 +169,10 @@
             this._sourceNode.connect(this._workletNode);
             this._workletNode.connect(this._audioContext.destination);
             this._useWorklet = true;
-            console.info('[DeepgramClient] Using AudioWorklet pipeline');
+            log('Using AudioWorklet pipeline');
             return;
           } catch (workletErr) {
-            console.warn('[DeepgramClient] AudioWorklet unavailable, falling back to ScriptProcessor:', workletErr.message);
+            warn('AudioWorklet unavailable, falling back to ScriptProcessor:', workletErr.message);
           }
         }
 
@@ -183,7 +186,7 @@
         };
         this._sourceNode.connect(this._processorNode);
         this._processorNode.connect(this._audioContext.destination);
-        console.info('[DeepgramClient] Using ScriptProcessorNode fallback');
+        log('Using ScriptProcessorNode fallback');
       } catch (err) {
         this._emitError(`Audio pipeline error: ${err.message}`);
       }
@@ -212,17 +215,12 @@
           const isFinal = data.is_final === true;
           const confidence = alt.confidence || 0;
 
-          // Extract speaker from diarization
+          // Extract speaker from diarization — use neutral labels to avoid
+          // mis-labeling when the prospect or an automated greeting speaks first
           let speaker = null;
           const words = alt.words || [];
           if (words.length > 0 && words[0].speaker !== undefined) {
-            const speakerId = words[0].speaker;
-            // First-speaker heuristic: first person to speak is the SDR
-            if (!this._firstSpeakerIdentified) {
-              this._sdrSpeakerId = speakerId;
-              this._firstSpeakerIdentified = true;
-            }
-            speaker = speakerId === this._sdrSpeakerId ? 'you' : 'prospect';
+            speaker = `Speaker ${words[0].speaker}`;
           }
 
           if (transcript.trim() && typeof this.onTranscript === 'function') {
@@ -238,12 +236,12 @@
             this.onTranscript({ speechStarted: true });
           }
         } else if (data.type === 'Metadata') {
-          console.debug('[DeepgramClient] Metadata:', data);
+          log('Metadata:', data);
         } else if (data.type === 'Error') {
           this._emitError(`Deepgram error: ${data.message || JSON.stringify(data)}`);
         }
       } catch (err) {
-        console.warn('[DeepgramClient] Failed to parse message:', err);
+        warn('Failed to parse message:', err);
       }
     }
 
@@ -256,7 +254,7 @@
       this._teardownAudioPipeline();
 
       const reason = ev.reason ? ` (${ev.reason})` : '';
-      console.info(`[DeepgramClient] WebSocket closed — code ${ev.code}${reason}`);
+      log(`WebSocket closed — code ${ev.code}${reason}`);
 
       if (typeof this.onClose === 'function') {
         this.onClose({ code: ev.code, reason: ev.reason });
@@ -278,7 +276,7 @@
 
       this._reconnectAttempts++;
       const delay = Math.min(1000 * Math.pow(2, this._reconnectAttempts - 1), 30000);
-      console.info(`[DeepgramClient] Reconnecting in ${delay}ms (attempt ${this._reconnectAttempts})`);
+      log(`Reconnecting in ${delay}ms (attempt ${this._reconnectAttempts})`);
 
       this._reconnectTimer = setTimeout(() => {
         if (!this._stopping) this._connect();
@@ -308,7 +306,7 @@
           this._audioContext = null;
         }
       } catch (err) {
-        console.warn('[DeepgramClient] Teardown warning:', err);
+        warn('Teardown warning:', err);
       }
     }
 
@@ -349,7 +347,7 @@
     }
 
     _emitError(msg) {
-      console.error(`[DeepgramClient] ${msg}`);
+      dbgErr(msg);
       if (typeof this.onError === 'function') this.onError(msg);
     }
   }

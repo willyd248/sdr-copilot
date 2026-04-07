@@ -13,6 +13,11 @@
 (function () {
   'use strict';
 
+  const DEBUG = false;
+  const log = (...a) => { if (DEBUG) console.log('[SDR Copilot]', ...a); };
+  const warn = (...a) => { if (DEBUG) console.warn('[SDR Copilot]', ...a); };
+  const dbgErr = (...a) => { if (DEBUG) console.error('[SDR Copilot]', ...a); };
+
   // ─── State ────────────────────────────────────────────────────────────────────
 
   const state = {
@@ -102,9 +107,9 @@
       // Listen for messages from service worker / popup
       chrome.runtime.onMessage.addListener(onExtensionMessage);
 
-      console.info('[SDR Copilot] Overlay initialized — demo mode:', state.demoMode);
-    } catch (err) {
-      console.error('[SDR Copilot] Init error:', err);
+      log('Overlay initialized — demo mode:', state.demoMode);
+    } catch (e) {
+      dbgErr('Init error:', e);
     }
   }
 
@@ -174,7 +179,7 @@
       startRealTranscription();
     }
 
-    console.info('[SDR Copilot] Call started');
+    log('Call started');
   }
 
   async function onCallEnd() {
@@ -221,7 +226,7 @@
       autoSyncSalesforce(callRecord);
     }
 
-    console.info('[SDR Copilot] Call ended — duration:', durationSeconds, 's');
+    log('Call ended — duration:', durationSeconds, 's');
   }
 
   // ─── Transcription ────────────────────────────────────────────────────────────
@@ -234,7 +239,7 @@
       );
 
       if (!resp?.ok) {
-        console.warn('[SDR Copilot] Tab capture unavailable:', resp?.error);
+        warn('Tab capture unavailable:', resp?.error);
         startDemoMode();
         return;
       }
@@ -243,7 +248,7 @@
       // consumed — skip getUserMedia here and let PCM arrive via OFFSCREEN_AUDIO_CHUNK.
       if (!resp.offscreen) {
         if (!resp.streamId) {
-          console.warn('[SDR Copilot] No stream ID returned');
+          warn('No stream ID returned');
           startDemoMode();
           return;
         }
@@ -281,7 +286,7 @@
       };
 
       client.onError = (msg) => {
-        console.error('[SDR Copilot] Deepgram error:', msg);
+        dbgErr('Deepgram error:', msg);
         appendTranscriptLine('⚠ Transcription error — reconnecting…', 'system');
       };
 
@@ -294,8 +299,8 @@
       // Pass stream only in the non-offscreen path; in offscreen mode PCM arrives
       // via OFFSCREEN_AUDIO_CHUNK messages which write directly to the WebSocket.
       client.start(state.settings.deepgramApiKey, state.audioStream ?? null);
-    } catch (err) {
-      console.warn('[SDR Copilot] Transcription start failed:', err);
+    } catch (e) {
+      warn('Transcription start failed:', e);
       startDemoMode();
     }
   }
@@ -526,6 +531,7 @@
 
   function showOverlay() {
     if (!state.overlayEl) buildOverlayDOM();
+    state.overlayEl.classList.remove('sdrc-exiting');
     state.overlayEl.classList.remove('sdrc-hidden');
     state.overlayEl.classList.remove('sdrc-minimized');
     state.overlayVisible = true;
@@ -533,8 +539,12 @@
 
   function hideOverlay() {
     if (!state.overlayEl) return;
-    state.overlayEl.classList.add('sdrc-hidden');
     state.overlayVisible = false;
+    state.overlayEl.classList.add('sdrc-exiting');
+    state.overlayEl.addEventListener('animationend', () => {
+      state.overlayEl.classList.add('sdrc-hidden');
+      state.overlayEl.classList.remove('sdrc-exiting');
+    }, { once: true });
   }
 
   function toggleMinimize() {

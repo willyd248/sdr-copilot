@@ -115,19 +115,19 @@
     // Status: Google
     if (tokens.googleConnected || settings.googleConnected) {
       setStatus(el.siGoogle, el.svGoogle, 'connected', 'On', 'ok');
-      el.connectGoogle.textContent = '✉ Gmail ✓';
+      el.connectGoogle.textContent = 'Gmail ✓';
     } else {
       setStatus(el.siGoogle, el.svGoogle, '', 'Off');
-      el.connectGoogle.textContent = '✉ Gmail';
+      el.connectGoogle.textContent = 'Connect Gmail';
     }
 
     // Status: Salesforce
     if (tokens.salesforceConnected || settings.salesforceConnected) {
       setStatus(el.siSF, el.svSF, 'connected', 'On', 'ok');
-      el.connectSF.textContent = '☁ SF ✓';
+      el.connectSF.textContent = 'Salesforce ✓';
     } else {
       setStatus(el.siSF, el.svSF, '', 'Off');
-      el.connectSF.textContent = '☁ Salesforce';
+      el.connectSF.textContent = 'Connect Salesforce';
     }
 
     // Primary button label
