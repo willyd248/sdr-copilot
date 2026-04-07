@@ -4,6 +4,7 @@
   "version": "1.1.0",
   "description": "AI-powered assistant for Sales Development Representatives — live call transcription, objection coaching, and automated follow-ups.",
   "author": "SDR Copilot",
+  "homepage_url": "https://sdrcopilot.vercel.app/",
 
   "icons": {
     "16": "assets/icons/icon16.png",

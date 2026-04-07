@@ -46,12 +46,39 @@
   color: var(--sdrc-text-primary);
   z-index: 2147483647;
   overflow: hidden;
-  transition: max-height 0.25s ease, opacity 0.15s ease, transform 0.15s ease;
+  transition: max-height 0.25s ease, opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   transform-origin: bottom right;
+  animation: sdrc-overlay-enter 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes sdrc-overlay-enter {
+  from {
+    opacity: 0;
+    transform: translateX(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 
 #sdrc-overlay.sdrc-hidden {
   display: none;
+}
+
+#sdrc-overlay.sdrc-exiting {
+  animation: sdrc-overlay-exit 0.18s ease forwards;
+}
+
+@keyframes sdrc-overlay-exit {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(12px) scale(0.97);
+  }
 }
 
 #sdrc-overlay.sdrc-minimized {
