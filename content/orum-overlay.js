@@ -155,6 +155,35 @@
     state.prospectInfo.company = companyEl?.textContent?.trim() || '';
   }
 
+  /**
+   * Look up stored LinkedIn contacts and enrich prospectInfo if we find a match
+   * by name or company. Fills in email and linkedinUrl when Orum DOM doesn't
+   * expose them. Runs async — safe to fire-and-forget.
+   */
+  function enrichProspectFromLinkedIn() {
+    chrome.runtime.sendMessage({ type: 'GET_LINKEDIN_CONTACTS' }, (res) => {
+      if (!res?.ok || !res.contacts?.length) return;
+
+      const name = (state.prospectInfo.name || '').toLowerCase();
+      const company = (state.prospectInfo.company || '').toLowerCase();
+      const hasRealName = name && name !== 'prospect';
+
+      const match = res.contacts.find(c => {
+        const cName = (c.name || '').toLowerCase();
+        const cCo = (c.company || '').toLowerCase();
+        if (hasRealName && cName && cName.includes(name)) return true;
+        if (company && cCo && cCo.includes(company)) return true;
+        return false;
+      });
+
+      if (!match) return;
+      if (!state.prospectInfo.email && match.email) state.prospectInfo.email = match.email;
+      if (!state.prospectInfo.company && match.company) state.prospectInfo.company = match.company;
+      if (match.linkedinUrl) state.prospectInfo.linkedinUrl = match.linkedinUrl;
+      log('Prospect enriched from LinkedIn:', match.name);
+    });
+  }
+
   // ─── Call Lifecycle ───────────────────────────────────────────────────────────
 
   function onCallStart() {
@@ -167,6 +196,7 @@
 
     if (state.aiCoach) state.aiCoach.reset();
     extractProspectInfo();
+    enrichProspectFromLinkedIn();
 
     showOverlay();
     startTimer();

@@ -271,7 +271,7 @@
       if (/demo|show me|walkthrough|see it/i.test(text)) {
         actions.push('Book product demo');
       }
-      if (/reference|case study|customer story/i.test(text)) {
+      if (/reference|case studi(es|y)|customer stor(y|ies)/i.test(text)) {
         actions.push('Share relevant case study');
       }
       if (/trial|pilot|proof of concept|poc/i.test(text)) {

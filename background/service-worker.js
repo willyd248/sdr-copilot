@@ -286,10 +286,14 @@ async function handleSaveCallRecord(record, sendResponse) {
     const trimmed = history.slice(0, 500);
     await chrome.storage.local.set({ [STORAGE_CALL_HISTORY]: trimmed });
 
+    const segs = enriched.talkSegments || [];
+    const youMs = segs.filter(s => s.speaker === 'you').reduce((a, s) => a + (s.durationMs || 0), 0);
+    const prospectMs = segs.filter(s => s.speaker !== 'you').reduce((a, s) => a + (s.durationMs || 0), 0);
+    const totalMs = youMs + prospectMs || 1;
     posthog('call_saved', {
       duration_seconds: enriched.durationSeconds || 0,
       objection_count: (enriched.objections || []).length,
-      talk_you_pct: enriched.talkTime?.youPct || 0,
+      talk_you_pct: Math.round((youMs / totalMs) * 100),
       demo_mode: !!enriched.demoMode
     });
 
@@ -799,7 +803,14 @@ async function handleGetLinkedInContacts(sendResponse) {
 
 // ─── Claude AI Analysis ───────────────────────────────────────────────────────
 
+let _claudeRateLimitedUntil = 0;
+
 async function handleClaudeAnalyze(payload, sendResponse) {
+  if (Date.now() < _claudeRateLimitedUntil) {
+    sendResponse({ ok: false, error: 'rate_limited' });
+    return;
+  }
+
   try {
     const secrets = await getLocalSecrets();
     const apiKey = secrets.anthropicApiKey;
@@ -831,6 +842,14 @@ If no objections, return {"objections":[]}`
         }]
       })
     });
+
+    if (res.status === 429) {
+      const retryAfter = parseInt(res.headers.get('retry-after') || '60', 10);
+      _claudeRateLimitedUntil = Date.now() + retryAfter * 1000;
+      posthog('claude_rate_limited', { retry_after_seconds: retryAfter });
+      sendResponse({ ok: false, error: 'rate_limited' });
+      return;
+    }
 
     if (!res.ok) {
       const errText = await res.text();

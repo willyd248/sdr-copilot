@@ -531,6 +531,70 @@
       to   { background-position: -200% 0; }
     }
 
+    /* ─── Contacts ──────────────────────────────────────────────── */
+    .contacts-search {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .contacts-search input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .contacts-search input:focus { border-color: rgba(77,142,255,0.4); }
+    .contacts-search input::placeholder { color: var(--text-3); }
+
+    .contacts-table { width: 100%; border-collapse: collapse; }
+
+    .contacts-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .contacts-table td {
+      padding: 12px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .contacts-table tr:last-child td { border-bottom: none; }
+    .contacts-table tr:hover td { background: var(--surface-hover); }
+
+    .contact-name { font-weight: 500; }
+
+    .contact-linkedin {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 12px;
+    }
+    .contact-linkedin:hover { text-decoration: underline; }
+
+    .contact-badge {
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 20px;
+      background: rgba(77,142,255,0.12);
+      color: var(--accent-light);
+    }
+
     /* ─── Responsive helpers ────────────────────────────────────── */
     .mb-32 { margin-bottom: 32px; }
 
@@ -629,6 +693,23 @@
           <div class="skeleton" style="height:48px; border-radius:0;"></div>
           <div class="skeleton" style="height:48px; border-radius:0; margin-top:1px; opacity:0.6;"></div>
           <div class="skeleton" style="height:48px; border-radius:0; margin-top:1px; opacity:0.3;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LinkedIn Contacts -->
+    <div class="mb-32">
+      <div class="section-header">
+        <span class="section-title">LinkedIn Contacts</span>
+        <span class="section-meta" id="contacts-meta"></span>
+      </div>
+      <div class="contacts-search">
+        <input type="text" id="contacts-search" placeholder="Search by name, company, or email…" />
+      </div>
+      <div class="card">
+        <div id="contacts-container">
+          <div class="skeleton" style="height:44px; border-radius:0;"></div>
+          <div class="skeleton" style="height:44px; border-radius:0; margin-top:1px; opacity:0.6;"></div>
         </div>
       </div>
     </div>
