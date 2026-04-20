@@ -179,6 +179,10 @@
       startRealTranscription();
     }
 
+    chrome.runtime.sendMessage({ type: 'TRACK_EVENT', payload: {
+      event: 'call_started',
+      properties: { demo_mode: !!state.demoMode }
+    }});
     log('Call started');
   }
 
@@ -373,8 +377,23 @@
 
       if (newObjections.length > 0) {
         newObjections.forEach(obj => renderObjectionCard(obj));
+        chrome.runtime.sendMessage({ type: 'TRACK_EVENT', payload: {
+          event: 'objection_detected',
+          properties: { types: newObjections.map(o => o.id), source: 'keyword' }
+        }});
       }
       renderSuggestions(activeSuggestions);
+
+      // Claude AI analysis — async supplement to keyword matching
+      state.aiCoach.analyzeWithClaude(text, (claudeObjections) => {
+        state.activeObjections = state.aiCoach.getActiveObjections();
+        claudeObjections.forEach(obj => renderObjectionCard(obj));
+        renderSuggestions(state.activeObjections);
+        chrome.runtime.sendMessage({ type: 'TRACK_EVENT', payload: {
+          event: 'objection_detected',
+          properties: { types: claudeObjections.map(o => o.id), source: 'claude' }
+        }});
+      });
     }
   }
 

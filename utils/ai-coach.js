@@ -181,6 +181,41 @@
       return { newObjections, activeSuggestions };
     }
 
+    /**
+     * Async Claude-powered objection detection. Runs after keyword analysis as
+     * a higher-accuracy supplement. Calls back only with NEW objections not
+     * already detected by keyword matching. No-ops when no API key is set.
+     * @param {string} text
+     * @param {function(Array): void} onNewObjections
+     */
+    analyzeWithClaude(text, onNewObjections) {
+      if (!text || !text.trim() || text.trim().length < 10) return;
+      chrome.runtime.sendMessage(
+        { type: 'CLAUDE_ANALYZE', payload: { text } },
+        (response) => {
+          if (!response?.ok || !response.objections?.length) return;
+          const newObjections = [];
+          for (const result of response.objections) {
+            if ((result.confidence || 0) < 0.6) continue;
+            const base = OBJECTIONS.find(o => o.id === result.type);
+            if (!base || this._detectedObjections.has(base.id)) continue;
+            const entry = {
+              ...base,
+              suggestions: result.suggestion
+                ? [result.suggestion, ...base.suggestions.slice(0, 3)]
+                : base.suggestions,
+              detectedAt: Date.now(),
+              dismissed: false,
+              source: 'claude'
+            };
+            this._detectedObjections.set(base.id, entry);
+            newObjections.push(entry);
+          }
+          if (newObjections.length > 0) onNewObjections(newObjections);
+        }
+      );
+    }
+
     /** Dismiss an objection card so it doesn't keep showing. */
     dismiss(objectionId) {
       const entry = this._detectedObjections.get(objectionId);
