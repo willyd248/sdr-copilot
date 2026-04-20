@@ -17,6 +17,9 @@
     dgKey:          document.getElementById('dg-key'),
     dgRevealBtn:    document.getElementById('dg-reveal-btn'),
     dgAlert:        document.getElementById('dg-alert'),
+
+    anthropicKey:       document.getElementById('anthropic-key'),
+    anthropicRevealBtn: document.getElementById('anthropic-reveal-btn'),
     demoModeToggle: document.getElementById('demo-mode-toggle'),
     orumDomain:     document.getElementById('orum-domain'),
     overlayToggle:  document.getElementById('overlay-toggle'),
@@ -92,6 +95,11 @@
     if (settings.deepgramApiKey) {
       el.dgKey.placeholder = '••••••••••••••••  (saved)';
     }
+
+    // Anthropic
+    if (settings.anthropicApiKey) {
+      el.anthropicKey.placeholder = '••••••••••••••••  (saved)';
+    }
     el.demoModeToggle.checked = settings.demoMode !== false;
 
     // Orum
@@ -154,7 +162,7 @@
     // Track changes
     const changeEls = [
       el.profileName, el.profileTitle, el.profileCompany, el.profilePhone, el.profileEmail,
-      el.dgKey, el.demoModeToggle, el.orumDomain, el.overlayToggle,
+      el.dgKey, el.anthropicKey, el.demoModeToggle, el.orumDomain, el.overlayToggle,
       el.pdmAuditToggle, el.autoDraftToggle, el.sfClientId,
       el.sfClientSecret, el.sfEnvironment, el.autoSFToggle,
       el.prefObjChart, el.prefTalktime, el.prefFollowups
@@ -177,6 +185,17 @@
       } else {
         el.dgKey.type = 'password';
         el.dgRevealBtn.textContent = 'Show';
+      }
+    });
+
+    // Anthropic key reveal
+    el.anthropicRevealBtn.addEventListener('click', () => {
+      if (el.anthropicKey.type === 'password') {
+        el.anthropicKey.type = 'text';
+        el.anthropicRevealBtn.textContent = 'Hide';
+      } else {
+        el.anthropicKey.type = 'password';
+        el.anthropicRevealBtn.textContent = 'Show';
       }
     });
 
@@ -235,6 +254,7 @@
         email: el.profileEmail.value.trim()
       },
       deepgramApiKey: el.dgKey.value.trim() || settings.deepgramApiKey || '',
+      anthropicApiKey: el.anthropicKey.value.trim() || settings.anthropicApiKey || '',
       demoMode: el.demoModeToggle.checked,
       orumDomain: el.orumDomain.value.trim() || 'app.orum.io',
       overlayEnabled: el.overlayToggle.checked,
@@ -269,6 +289,10 @@
       if (el.dgKey.value) {
         el.dgKey.value = '';
         el.dgKey.placeholder = '••••••••••••••••  (saved)';
+      }
+      if (el.anthropicKey.value) {
+        el.anthropicKey.value = '';
+        el.anthropicKey.placeholder = '••••••••••••••••  (saved)';
       }
       if (el.sfClientSecret.value) {
         el.sfClientSecret.value = '';

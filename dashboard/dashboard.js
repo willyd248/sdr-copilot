@@ -92,6 +92,7 @@
     renderTalkTime();
     renderFollowUps();
     renderCallHistory();
+    await renderContacts();
 
     bindEvents();
   }
@@ -110,6 +111,14 @@
     return new Promise(resolve => {
       chrome.runtime.sendMessage({ type: 'GET_CALL_HISTORY' }, res => {
         resolve(res?.history || []);
+      });
+    });
+  }
+
+  function fetchLinkedInContacts() {
+    return new Promise(resolve => {
+      chrome.runtime.sendMessage({ type: 'GET_LINKEDIN_CONTACTS' }, res => {
+        resolve(res?.contacts || []);
       });
     });
   }
@@ -498,6 +507,81 @@ Best,
 ${signature}`;
   }
 
+  // ─── Contacts ────────────────────────────────────────────────────────────────
+
+  let _allContacts = [];
+
+  async function renderContacts(filterText = '') {
+    if (!_allContacts.length) {
+      _allContacts = await fetchLinkedInContacts();
+    }
+
+    const meta = document.getElementById('contacts-meta');
+    const container = document.getElementById('contacts-container');
+    if (!container) return;
+
+    const query = filterText.toLowerCase().trim();
+    const filtered = query
+      ? _allContacts.filter(c =>
+          (c.name || '').toLowerCase().includes(query) ||
+          (c.company || '').toLowerCase().includes(query) ||
+          (c.email || '').toLowerCase().includes(query)
+        )
+      : _allContacts;
+
+    if (meta) meta.textContent = `${_allContacts.length} saved`;
+
+    if (_allContacts.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔗</div>
+          <div class="empty-state-title">No contacts yet</div>
+          <div class="empty-state-desc">Visit a LinkedIn profile page while the extension is active to capture contact info automatically.</div>
+        </div>`;
+      return;
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-desc">No contacts match "${escapeHTML(filterText)}"</div></div>`;
+      return;
+    }
+
+    const rows = filtered.map(c => {
+      const capturedDate = c.capturedAt
+        ? new Date(c.capturedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        : '';
+      const degreeLabel = c.degree ? `<span class="contact-badge">${escapeHTML(c.degree)}</span>` : '';
+      const emailCell = c.email
+        ? `<a href="mailto:${escapeHTML(c.email)}" style="color:var(--accent-light);text-decoration:none;">${escapeHTML(c.email)}</a>`
+        : `<span style="color:var(--text-3);">—</span>`;
+      const liCell = c.linkedinUrl
+        ? `<a href="${escapeHTML(c.linkedinUrl)}" target="_blank" class="contact-linkedin">↗ LinkedIn</a>`
+        : '—';
+      return `
+        <tr>
+          <td><span class="contact-name">${escapeHTML(c.name || '—')}</span> ${degreeLabel}</td>
+          <td>${escapeHTML(c.company || '—')}</td>
+          <td>${emailCell}</td>
+          <td>${liCell}</td>
+          <td style="color:var(--text-3);font-size:12px;">${capturedDate}</td>
+        </tr>`;
+    }).join('');
+
+    container.innerHTML = `
+      <table class="contacts-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Company</th>
+            <th>Email</th>
+            <th>LinkedIn</th>
+            <th>Captured</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
   // ─── Events ─────────────────────────────────────────────────────────────────
 
   function bindEvents() {
@@ -510,6 +594,10 @@ ${signature}`;
     });
 
     document.getElementById('export-btn').addEventListener('click', exportCSV);
+
+    document.getElementById('contacts-search')?.addEventListener('input', (e) => {
+      renderContacts(e.target.value);
+    });
 
     // Date navigation
     document.getElementById('date-prev').addEventListener('click', () => {

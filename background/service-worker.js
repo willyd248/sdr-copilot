@@ -6,8 +6,11 @@
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const PH_KEY    = 'phc_nbJYTmmAEAmKmnmYKFsUZnLt4cpPxbFUmG8dQEFjSvxZ';
-const SENTRY_DSN = 'https://f7202c3f38ae91f64b037e833b2f9a0b@o4511073877229568.ingest.us.sentry.io/4511140406034432';
+const PH_KEY         = 'phc_nbJYTmmAEAmKmnmYKFsUZnLt4cpPxbFUmG8dQEFjSvxZ';
+const PH_ENDPOINT    = 'https://us.i.posthog.com/capture/';
+const SENTRY_KEY     = 'f7202c3f38ae91f64b037e833b2f9a0b';
+const SENTRY_STORE   = 'https://o4511073877229568.ingest.us.sentry.io/api/4511140406034432/store/';
+const EXT_VERSION    = '1.1.0';
 
 const ALARM_NIGHTLY_REFRESH  = 'nightly-dashboard-refresh';
 const STORAGE_CALL_HISTORY   = 'callHistory';
@@ -22,6 +25,58 @@ const GOOGLE_SCOPES = [
   'https://www.googleapis.com/auth/gmail.send',
   'https://www.googleapis.com/auth/userinfo.email'
 ].join(' ');
+
+// ─── Analytics & Error Reporting ─────────────────────────────────────────────
+
+async function getOrCreateDistinctId() {
+  const data = await chrome.storage.local.get('ph_distinct_id');
+  if (data.ph_distinct_id) return data.ph_distinct_id;
+  const id = `ext_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+  await chrome.storage.local.set({ ph_distinct_id: id });
+  return id;
+}
+
+async function posthog(event, properties = {}) {
+  try {
+    const distinct_id = await getOrCreateDistinctId();
+    await fetch(PH_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        api_key: PH_KEY,
+        event,
+        distinct_id,
+        properties: { $lib: 'sdr-copilot', extension_version: EXT_VERSION, ...properties }
+      })
+    });
+  } catch {
+    // Non-fatal
+  }
+}
+
+async function captureError(err, context = {}) {
+  try {
+    const eventId = crypto.randomUUID().replace(/-/g, '');
+    await fetch(SENTRY_STORE, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Sentry-Auth': `Sentry sentry_version=7, sentry_client=sdr-copilot/${EXT_VERSION}, sentry_key=${SENTRY_KEY}`
+      },
+      body: JSON.stringify({
+        event_id: eventId,
+        timestamp: new Date().toISOString(),
+        message: err?.message || String(err),
+        level: 'error',
+        logger: context.logger || 'service-worker',
+        tags: { extension_version: EXT_VERSION },
+        extra: context
+      })
+    });
+  } catch {
+    // Non-fatal
+  }
+}
 
 // ─── Alarm Setup ──────────────────────────────────────────────────────────────
 
@@ -161,6 +216,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       handleCaptureTabAudio(sender.tab, sendResponse);
       return true;
 
+    case 'CLAUDE_ANALYZE':
+      handleClaudeAnalyze(payload, sendResponse);
+      return true;
+
+    case 'TRACK_EVENT':
+      posthog(payload?.event, payload?.properties || {});
+      sendResponse({ ok: true });
+      return false;
+
     default:
       sendResponse({ error: `Unknown message type: ${type}` });
       return false;
@@ -173,35 +237,34 @@ async function handleGetSettings(sendResponse) {
   try {
     const data = await chrome.storage.sync.get(STORAGE_SETTINGS);
     const settings = data[STORAGE_SETTINGS] || {};
-    // Merge sensitive keys from local storage so callers get a complete settings object
     const secrets = await getLocalSecrets();
     if (secrets.deepgramApiKey) settings.deepgramApiKey = secrets.deepgramApiKey;
+    if (secrets.anthropicApiKey) settings.anthropicApiKey = secrets.anthropicApiKey;
     sendResponse({ ok: true, settings });
   } catch (err) {
+    captureError(err, { logger: 'get-settings' });
     sendResponse({ ok: false, error: err.message });
   }
 }
 
 async function handleSaveSettings(newSettings, sendResponse) {
   try {
-    // Sensitive keys — keep in local storage, never sync
-    const { salesforceClientSecret, deepgramApiKey, ...syncableSettings } = newSettings;
-    if (salesforceClientSecret) {
-      await saveLocalSecrets({ salesforceClientSecret });
-    }
-    if (deepgramApiKey !== undefined) {
-      await saveLocalSecrets({ deepgramApiKey });
-    }
+    const { salesforceClientSecret, deepgramApiKey, anthropicApiKey, ...syncableSettings } = newSettings;
+    if (salesforceClientSecret) await saveLocalSecrets({ salesforceClientSecret });
+    if (deepgramApiKey !== undefined) await saveLocalSecrets({ deepgramApiKey });
+    if (anthropicApiKey !== undefined) await saveLocalSecrets({ anthropicApiKey });
 
     const data = await chrome.storage.sync.get(STORAGE_SETTINGS);
     // Also remove any sensitive key that may have been written to sync previously
     const existing = data[STORAGE_SETTINGS] || {};
     delete existing.salesforceClientSecret;
     delete existing.deepgramApiKey;
+    delete existing.anthropicApiKey;
     const merged = { ...existing, ...syncableSettings };
     await chrome.storage.sync.set({ [STORAGE_SETTINGS]: merged });
     sendResponse({ ok: true });
   } catch (err) {
+    captureError(err, { logger: 'save-settings' });
     sendResponse({ ok: false, error: err.message });
   }
 }
@@ -220,11 +283,23 @@ async function handleSaveCallRecord(record, sendResponse) {
     };
 
     history.unshift(enriched);
-    // Keep last 500 records
     const trimmed = history.slice(0, 500);
     await chrome.storage.local.set({ [STORAGE_CALL_HISTORY]: trimmed });
+
+    const segs = enriched.talkSegments || [];
+    const youMs = segs.filter(s => s.speaker === 'you').reduce((a, s) => a + (s.durationMs || 0), 0);
+    const prospectMs = segs.filter(s => s.speaker !== 'you').reduce((a, s) => a + (s.durationMs || 0), 0);
+    const totalMs = youMs + prospectMs || 1;
+    posthog('call_saved', {
+      duration_seconds: enriched.durationSeconds || 0,
+      objection_count: (enriched.objections || []).length,
+      talk_you_pct: Math.round((youMs / totalMs) * 100),
+      demo_mode: !!enriched.demoMode
+    });
+
     sendResponse({ ok: true, id: enriched.id });
   } catch (err) {
+    captureError(err, { logger: 'save-call-record' });
     sendResponse({ ok: false, error: err.message });
   }
 }
@@ -486,8 +561,10 @@ async function handleCreateGmailDraft(payload, sendResponse) {
     }
 
     const data = await res.json();
+    posthog('email_drafted', {});
     sendResponse({ ok: true, draftId: data.id });
   } catch (err) {
+    captureError(err, { logger: 'create-gmail-draft' });
     sendResponse({ ok: false, error: err.message });
   }
 }
@@ -512,6 +589,7 @@ async function handleSalesforceUpsertActivity(payload, sendResponse) {
     if (!tokens.salesforceAccessToken) throw new Error('Salesforce not connected');
 
     const result = await upsertSalesforceActivity(tokens, payload);
+    posthog('salesforce_logged', {});
     sendResponse({ ok: true, result });
   } catch (err) {
     if (err.message.includes('INVALID_SESSION_ID') || err.message.includes('401')) {
@@ -519,11 +597,14 @@ async function handleSalesforceUpsertActivity(payload, sendResponse) {
         const newToken = await refreshSalesforceToken();
         const tokens = await getTokens();
         const result = await upsertSalesforceActivity(tokens, payload);
+        posthog('salesforce_logged', {});
         sendResponse({ ok: true, result });
       } catch (refreshErr) {
+        captureError(refreshErr, { logger: 'salesforce-upsert-refresh' });
         sendResponse({ ok: false, error: refreshErr.message });
       }
     } else {
+      captureError(err, { logger: 'salesforce-upsert' });
       sendResponse({ ok: false, error: err.message });
     }
   }
@@ -653,7 +734,12 @@ async function handleNightlyRefresh() {
     summaries.unshift(summary);
     await chrome.storage.local.set({ dailySummaries: summaries.slice(0, 90) });
 
-    // Show notification
+    posthog('daily_summary', {
+      total_calls: summary.totalCalls,
+      total_talk_seconds: summary.totalTalkSeconds,
+      unique_objection_types: Object.keys(summary.objections).length
+    });
+
     chrome.notifications.create({
       type: 'basic',
       iconUrl: 'assets/icons/icon48.png',
@@ -661,6 +747,7 @@ async function handleNightlyRefresh() {
       message: `${summary.totalCalls} calls today. ${Math.round(summary.totalTalkSeconds / 60)} min total talk time.`
     });
   } catch (err) {
+    captureError(err, { logger: 'nightly-refresh' });
     console.error('[SDR Copilot] Nightly refresh error:', err);
   }
 }
@@ -710,6 +797,79 @@ async function handleGetLinkedInContacts(sendResponse) {
     const data = await chrome.storage.local.get(STORAGE_LINKEDIN_CONTACTS);
     sendResponse({ ok: true, contacts: data[STORAGE_LINKEDIN_CONTACTS] || [] });
   } catch (err) {
+    sendResponse({ ok: false, error: err.message });
+  }
+}
+
+// ─── Claude AI Analysis ───────────────────────────────────────────────────────
+
+let _claudeRateLimitedUntil = 0;
+
+async function handleClaudeAnalyze(payload, sendResponse) {
+  if (Date.now() < _claudeRateLimitedUntil) {
+    sendResponse({ ok: false, error: 'rate_limited' });
+    return;
+  }
+
+  try {
+    const secrets = await getLocalSecrets();
+    const apiKey = secrets.anthropicApiKey;
+    if (!apiKey) {
+      sendResponse({ ok: false, error: 'no_key' });
+      return;
+    }
+
+    const { text } = payload;
+    const safeText = (text || '').replace(/"/g, "'").slice(0, 500);
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 256,
+        messages: [{
+          role: 'user',
+          content: `You are analyzing a B2B sales call. The prospect just said: "${safeText}"
+
+Identify any sales objections. Reply with valid JSON only, no explanation:
+{"objections":[{"type":"price|timing|authority|need|competitor|trust","confidence":0.0,"suggestion":"one concise talk-track response"}]}
+If no objections, return {"objections":[]}`
+        }]
+      })
+    });
+
+    if (res.status === 429) {
+      const retryAfter = parseInt(res.headers.get('retry-after') || '60', 10);
+      _claudeRateLimitedUntil = Date.now() + retryAfter * 1000;
+      posthog('claude_rate_limited', { retry_after_seconds: retryAfter });
+      sendResponse({ ok: false, error: 'rate_limited' });
+      return;
+    }
+
+    if (!res.ok) {
+      const errText = await res.text();
+      captureError(new Error(`Claude API ${res.status}`), { logger: 'claude-analyze', status: res.status });
+      sendResponse({ ok: false, error: errText });
+      return;
+    }
+
+    const data = await res.json();
+    const content = data.content?.[0]?.text || '{"objections":[]}';
+    let parsed;
+    try {
+      parsed = JSON.parse(content);
+    } catch {
+      parsed = { objections: [] };
+    }
+
+    sendResponse({ ok: true, objections: parsed.objections || [] });
+  } catch (err) {
+    captureError(err, { logger: 'claude-analyze' });
     sendResponse({ ok: false, error: err.message });
   }
 }
